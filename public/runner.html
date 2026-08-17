@@ -842,6 +842,8 @@
       if (P.hurt > 0) P.hurt -= dt;
 
       for (const o of obs) o.z -= speed * dt;
+      updateEnv(speed * dt);
+      runCycle += dt * (2.4 + speed * 0.42);
       for (const g of orbs) g.z -= speed * dt;
       while (obs.length && obs[0].z < -12) obs.shift();
 
