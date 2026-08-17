@@ -34,13 +34,6 @@
   const HORIZON = () => H * 0.42;
   const DRAW_DIST = 120;
 
-  function project(x, y, z){
-    const dz = z - CAM_Z;
-    if (dz <= 0.1) return null;
-    const s = FOV / dz;
-    return { x: W/2 + x * s, y: HORIZON() - (y - CAM_H) * s * -1 - (CAM_H) * 0 + 0, s, dz };
-  }
-  // proper: screenY = horizon + (CAM_H - y) * s
   function proj(x, y, z){
     const dz = z - CAM_Z;
     if (dz <= 0.1) return null;
