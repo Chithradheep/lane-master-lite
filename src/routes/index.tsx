@@ -3,13 +3,13 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "THE UNLIVED LIFE — A Runner in Seven Phases" },
+      { title: "The Unlived Life — A Runner in Seven Phases" },
       {
         name: "description",
         content:
           "An endless runner through seven phases of a life: approval, belonging, the system, responsibility, irrelevance, the body, and the last breath.",
       },
-      { property: "og:title", content: "THE UNLIVED LIFE" },
+      { property: "og:title", content: "The Unlived Life" },
       {
         property: "og:description",
         content: "Run through seven phases of a life and gather the moments of presence you can.",
