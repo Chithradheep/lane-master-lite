@@ -392,8 +392,8 @@
     if (kind !== particleKind || particles.length === 0) seedParticles(kind);
     const s = PARTICLE_STYLE[kind] || PARTICLE_STYLE.dust;
     for (const q of particles){
-      q.y += s.vy * s.sp * dt * (H/700);
-      q.x += (s.vx * s.sp * 0.25 + Math.sin(t * s.drift + q.p) * 8) * dt;
+      q.y += s.vy * q.sp * dt * (H/700);
+      q.x += (s.vx * q.sp * 0.25 + Math.sin(t * s.drift + q.p) * 8) * dt;
       if (q.y < -80) q.y = H + 40;
       if (q.y > H + 80) q.y = -40;
       if (q.x < -90) q.x = W + 60;
