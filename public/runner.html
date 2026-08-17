@@ -643,15 +643,25 @@
     };
 
     if (P.sliding){
-      const y = P.y + 0.16;
-      limb(P.x-0.30, y+0.14, P.x+0.26, y+0.34, 0.36, cloth);
-      limb(P.x-0.30, y+0.16, P.x-0.60, y+0.08, 0.22, cloth2);
-      limb(P.x-0.60, y+0.08, P.x-0.80, y+0.18, 0.17, cloth2);
-      limb(P.x+0.08, y+0.34, P.x+0.30, y+0.62, 0.15, skin);
+      const y = P.y;
+      // back-view crouch/slide: low and centred, still facing straight ahead
+      for (const side of [-1, 1]){
+        const c = side < 0 ? cloth2 : cloth;
+        limb(P.x + side*0.14, y + 0.30, P.x + side*0.20, y + 0.12, 0.20, c);
+        limb(P.x + side*0.20, y + 0.12, P.x + side*0.16, y + 0.03, 0.16, c);
+        ctx.fillStyle = '#2f343d';
+        ctx.beginPath(); ctx.ellipse(PX(P.x + side*0.16), PY(y + 0.02), Math.max(1.5,0.12*S), Math.max(1,0.06*S), 0, 0, 7); ctx.fill();
+      }
+      limb(P.x, y + 0.28, P.x, y + 0.62, 0.42, cloth);
+      limb(P.x - 0.20, y + 0.58, P.x - 0.24, y + 0.34, 0.15, skin);
+      limb(P.x + 0.20, y + 0.58, P.x + 0.24, y + 0.34, 0.15, skin);
       ctx.fillStyle = skin;
-      ctx.beginPath(); ctx.ellipse(PX(P.x+0.34), PY(y+0.56), Math.max(2,0.18*S), Math.max(2,0.19*S), 0, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(PX(P.x), PY(y + 0.76), Math.max(2,0.16*S), Math.max(2,0.18*S), 0, 0, 7); ctx.fill();
+      ctx.fillStyle = 'rgba(24,26,32,.85)';
+      ctx.beginPath(); ctx.ellipse(PX(P.x), PY(y + 0.79), Math.max(2,0.165*S), Math.max(2,0.15*S), 0, 0, 7); ctx.fill();
       return;
     }
+
 
     const air = P.jumping, a = runCycle;
     const bob = air ? 0 : Math.abs(Math.sin(a)) * 0.05;
