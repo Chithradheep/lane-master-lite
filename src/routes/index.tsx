@@ -3,16 +3,16 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Lane Runner — 3-Lane Endless Runner Prototype" },
+      { title: "THE UNLIVED LIFE — A Runner in Seven Phases" },
       {
         name: "description",
         content:
-          "Canvas endless runner prototype: auto-run, lane switching, jumping, sliding and obstacle collisions.",
+          "An endless runner through seven phases of a life: approval, belonging, the system, responsibility, irrelevance, the body, and the last breath.",
       },
-      { property: "og:title", content: "Lane Runner — Endless Runner Prototype" },
+      { property: "og:title", content: "THE UNLIVED LIFE" },
       {
         property: "og:description",
-        content: "Arrow keys or swipes to switch lanes, jump and slide past obstacles.",
+        content: "Run through seven phases of a life and gather the moments of presence you can.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -24,10 +24,10 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <main className="h-screen w-screen overflow-hidden bg-background">
-      <h1 className="sr-only">Lane Runner endless runner prototype</h1>
+      <h1 className="sr-only">The Unlived Life</h1>
       <iframe
         src="/runner.html"
-        title="Lane Runner game"
+        title="The Unlived Life"
         className="h-full w-full border-0"
       />
     </main>

@@ -3,40 +3,45 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-<title>Lane Runner Prototype</title>
+<title>THE UNLIVED LIFE</title>
 <style>
-  html,body{margin:0;height:100%;background:#10131a;overflow:hidden;touch-action:none}
+  html,body{margin:0;height:100%;background:#07080b;overflow:hidden;touch-action:none}
   canvas{display:block;width:100%;height:100%}
-  #hud{position:fixed;top:10px;left:12px;font:13px/1.5 ui-monospace,monospace;color:#cbd8ea;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.6)}
-  #hud b{font-size:16px;letter-spacing:.04em}
+  #hud{position:fixed;top:12px;left:14px;font:12px/1.6 ui-monospace,monospace;color:#c3cede;
+       pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.8);opacity:0;transition:opacity .6s}
+  #hud.on{opacity:.85}
+  #hud b{display:block;font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+  #hud span{color:#8b99ad}
+  #again{position:fixed;left:50%;transform:translateX(-50%);bottom:14%;font:12px/1 ui-monospace,monospace;
+         color:#6d7a8d;text-decoration:underline;letter-spacing:.08em;cursor:pointer;display:none}
+  #again:hover{color:#aab6c6}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
-<div id="hud"><b id="phaseLabel">Phase 1 / 7</b><br><span id="distLabel">0 m</span><br>← → lanes · ↑/space jump · ↓ slide · swipe on touch</div>
+<div id="hud"><b id="phaseLabel"></b><span id="subLabel"></span></div>
+<div id="again">run it again</div>
 <script>
 (() => {
   const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+  const hud = document.getElementById('hud');
   const phaseLabel = document.getElementById('phaseLabel');
-  const distLabel = document.getElementById('distLabel');
+  const subLabel = document.getElementById('subLabel');
+  const againEl = document.getElementById('again');
+
   let W = 0, H = 0, DPR = 1;
   function resize(){
     DPR = Math.min(window.devicePixelRatio || 1, 2);
-    W = window.innerWidth; H = window.innerHeight;
+    W = innerWidth; H = innerHeight;
     cv.width = W * DPR; cv.height = H * DPR;
     ctx.setTransform(DPR,0,0,DPR,0,0);
   }
   addEventListener('resize', resize); resize();
 
-  // ---- world constants ----
-  const LANE_W = 2.2;
-  const LANES = [-LANE_W, 0, LANE_W];
-  const CAM_H = 3.4;
-  const CAM_Z = -9.5;
-  const FOV = 460;
+  // ---- world ----
+  const LANE_W = 2.2, LANES = [-LANE_W, 0, LANE_W];
+  const CAM_H = 3.4, CAM_Z = -9.5, FOV = 460, DRAW_DIST = 120;
   const HORIZON = () => H * 0.42;
-  const DRAW_DIST = 120;
-
   function proj(x, y, z){
     const dz = z - CAM_Z;
     if (dz <= 0.1) return null;
@@ -44,49 +49,58 @@
     return { x: W/2 + x * s, y: HORIZON() + (CAM_H - y) * s, s };
   }
 
-  // ---- phases (placeholder colors) ----
+  // ---- phases ----
   const PHASES = [
-    { name: 'Phase 1', sky:'#151a24', ground:'#1e2735', road:'#2b3547', stripe:'#323e53', obs:'#f0a03a', obsDark:'#c47a23' },
-    { name: 'Phase 2', sky:'#0f2420', ground:'#123329', road:'#1b4a3a', stripe:'#215a46', obs:'#7ee081', obsDark:'#3f9c52' },
-    { name: 'Phase 3', sky:'#2a1520', ground:'#3a1c2b', road:'#4d2438', stripe:'#5d2c44', obs:'#ff6f91', obsDark:'#c1385c' },
-    { name: 'Phase 4', sky:'#101a2e', ground:'#16243f', road:'#1e3157', stripe:'#263c69', obs:'#5ab0ff', obsDark:'#2a6fbd' },
-    { name: 'Phase 5', sky:'#2b2410', ground:'#3b3216', road:'#50441e', stripe:'#615325', obs:'#ffe066', obsDark:'#bda32c' },
-    { name: 'Phase 6', sky:'#1d1030', ground:'#28173f', road:'#361f55', stripe:'#412665', obs:'#c08bff', obsDark:'#7c4bc4' },
-    { name: 'Phase 7', sky:'#2b1208', ground:'#3a190b', road:'#4d2210', stripe:'#5d2a14', obs:'#ff8a4c', obsDark:'#c4501b' },
+    { name:'Childhood', sub:'Surviving Approval',
+      sky:'#1a1408', ground:'#241c0d', road:'#332711', stripe:'#3c2e15',
+      kinds:['exam','face'] },
+    { name:'Adolescence', sub:'Surviving Belonging',
+      sky:'#0d1622', ground:'#122031', road:'#1a2c42', stripe:'#20344e',
+      kinds:['mirror'] },
+    { name:'Early Adulthood', sub:'Surviving the System',
+      sky:'#101812', ground:'#16241b', road:'#1e3325', stripe:'#243d2c',
+      kinds:['bills','turnstile'] },
+    { name:'Building a Family', sub:'Surviving Responsibility',
+      sky:'#1b1410', ground:'#271c15', road:'#36271d', stripe:'#402f23',
+      kinds:['bills','phone'] },
+    { name:'Midlife', sub:'Surviving Irrelevance',
+      sky:'#181523', ground:'#221d31', road:'#2e2743', stripe:'#372e4f',
+      kinds:['stamp'] },
+    { name:'Decline', sub:'Surviving the Body',
+      sky:'#101a1c', ground:'#152427', road:'#1c3135', stripe:'#223a3f',
+      kinds:['medical','alarm'] },
+    { name:'The Last Breath', sub:'',
+      sky:'#05060a', ground:'#080a10', road:'#0c1018', stripe:'#0f141e',
+      kinds:[] },
   ];
-  const TOTAL_PHASES = PHASES.length;
-  let phase = 0;
-  let phaseStart = 0;
-  let phaseLen = 0;
-  let ended = false;
-  const nextLen = () => 350 + Math.random() * 100;
+  const TOTAL = PHASES.length;
 
-  // flash
-  let flash = 0, flashColor = '#ffffff';
-  const FLASH_HIT = '255,90,90';
-  const FLASH_CLEAR = '255,255,255';
-  let flashRGB = FLASH_CLEAR;
+  // ---- state ----
+  let mode = 'intro';           // intro | play | end
+  let phase = 0, phaseStart = 0, phaseLen = 0;
+  let speed = 14, dist = 0, moments = 0;
+  let flash = 0, flashRGB = '255,255,255';
+  const FLASH_HIT = '196,64,64', FLASH_PASS = '236,236,255';
+  let introT = 0, endT = 0;
+  const obs = [], orbs = [];
+  let nextZ = 45, orbPlaced = false;
 
-  // ---- player ----
-  const P = {
-    lane: 1, x: LANES[1], y: 0, vy: 0,
-    jumping: false, sliding: false, slideT: 0,
-    w: 1.0, h: 1.6, invuln: 0, hurt: 0
-  };
+  const P = { lane:1, x:0, y:0, vy:0, jumping:false, sliding:false, slideT:0,
+              w:1.0, h:1.6, invuln:0, hurt:0 };
   const GRAV = -38, JUMP_V = 12.5, SLIDE_TIME = 0.55;
 
-  let speed = 14, dist = 0;
-
-  function jump(){ if (!P.jumping && !ended){ P.jumping = true; P.sliding = false; P.vy = JUMP_V; } }
+  // ---- input ----
+  function jump(){ if (mode==='play' && !P.jumping){ P.jumping = true; P.sliding = false; P.vy = JUMP_V; } }
   function slide(){
-    if (ended) return;
+    if (mode !== 'play') return;
     if (!P.jumping){ P.sliding = true; P.slideT = SLIDE_TIME; }
     else P.vy = Math.min(P.vy, -18);
   }
-  function move(d){ if(!ended) P.lane = Math.max(0, Math.min(2, P.lane + d)); }
+  function move(d){ if (mode==='play') P.lane = Math.max(0, Math.min(2, P.lane + d)); }
 
   addEventListener('keydown', e => {
     if (e.repeat) return;
+    if (mode === 'intro' && (e.key === ' ' || e.key === 'Enter')){ begin(); e.preventDefault(); return; }
     switch(e.key){
       case 'ArrowLeft': move(-1); e.preventDefault(); break;
       case 'ArrowRight': move(1); e.preventDefault(); break;
@@ -94,6 +108,8 @@
       case 'ArrowDown': slide(); e.preventDefault(); break;
     }
   }, {passive:false});
+
+  addEventListener('pointerdown', () => { if (mode === 'intro' && introT > 6.6) begin(); });
 
   let tx=0, ty=0, tid=null;
   cv.addEventListener('touchstart', e => { const p=e.changedTouches[0]; tx=p.clientX; ty=p.clientY; tid=p.identifier; }, {passive:true});
@@ -107,66 +123,242 @@
     }
   }, {passive:true});
 
-  // ---- obstacles ----
-  const obs = [];
-  let nextZ = 40;
+  againEl.addEventListener('click', () => location.reload());
 
-  function spawn(){
-    const lane = Math.floor(Math.random()*3);
-    const type = Math.random() < 0.5 ? 'jump' : 'slide';
-    obs.push({
-      lane, type, z: nextZ,
-      y: type === 'jump' ? 0 : 1.5,
-      h: type === 'jump' ? 1.0 : 1.6,
-      w: LANE_W * 0.8, d: 1.2
-    });
-    nextZ += 14 + Math.random()*14 - Math.min(6, speed*0.2);
-  }
+  // ---- phase flow ----
+  const nextLen = () => 350 + Math.random() * 100;
 
   function startPhase(i){
-    phase = i;
-    phaseStart = dist;
-    phaseLen = nextLen();
-    obs.length = 0;
-    nextZ = 45;
-    phaseLabel.textContent = `${PHASES[i].name} / ${TOTAL_PHASES}`;
+    phase = i; phaseStart = dist; phaseLen = nextLen();
+    obs.length = 0; orbs.length = 0; nextZ = 50; orbPlaced = false;
+    const T = PHASES[i];
+    phaseLabel.textContent = T.name;
+    subLabel.textContent = T.sub;
+    if (i === TOTAL - 1) subLabel.textContent = '';
   }
 
   function advance(byHit){
-    flash = 1; flashRGB = byHit ? FLASH_HIT : FLASH_CLEAR;
-    if (phase + 1 >= TOTAL_PHASES){
-      ended = true;
-      phaseLabel.textContent = 'Complete';
-      return;
-    }
-    if (byHit){ P.invuln = 1.4; P.hurt = 0.45; }
+    flash = 1; flashRGB = byHit ? FLASH_HIT : FLASH_PASS;
+    if (byHit){ P.invuln = 1.4; P.hurt = 0.5; }
+    if (phase + 1 >= TOTAL) return;
     startPhase(phase + 1);
   }
 
-  function hit(o){
+  function begin(){
+    mode = 'play';
+    hud.classList.add('on');
+    startPhase(0);
+  }
+
+  function finish(){
+    mode = 'end'; endT = 0;
+    hud.classList.remove('on');
+  }
+
+  // ---- spawning ----
+  function spawn(){
+    const T = PHASES[phase];
+    if (!T.kinds.length) return;
+    const kind = T.kinds[Math.floor(Math.random()*T.kinds.length)];
+    const overhead = kind === 'turnstile' || kind === 'mirror' || kind === 'alarm' || kind === 'stamp'
+      ? Math.random() < 0.5 : Math.random() < 0.35;
+    obs.push({
+      kind, lane: Math.floor(Math.random()*3), z: nextZ,
+      y: overhead ? 1.5 : 0,
+      h: overhead ? 1.6 : 1.05,
+      w: LANE_W * 0.8, d: 1.2, overhead,
+      spin: Math.random()*6
+    });
+    nextZ += 14 + Math.random()*14 - Math.min(6, speed*0.2);
+
+    // one rare orb per phase, tucked past the halfway point
+    if (!orbPlaced && phase < TOTAL - 1 && dist - phaseStart > phaseLen * 0.35 && Math.random() < 0.25){
+      orbPlaced = true;
+      orbs.push({ lane: Math.floor(Math.random()*3), z: nextZ + 7, y: 1.15 + Math.random()*1.2, got:false });
+    }
+  }
+
+  // ---- collision ----
+  function hits(o){
     if (o.lane !== P.lane) return false;
     if (o.z + o.d/2 < -0.6 || o.z - o.d/2 > 0.6) return false;
     const ph = P.sliding ? 0.7 : P.h;
     return P.y < o.y + o.h && o.y < P.y + ph;
   }
+  function grabs(g){
+    if (g.lane !== P.lane || Math.abs(g.z) > 1.0) return false;
+    const ph = P.sliding ? 0.7 : P.h;
+    return P.y - 0.5 < g.y + 0.45 && g.y - 0.45 < P.y + ph + 0.3;
+  }
 
-  // ---- render ----
+  // ---- drawing primitives ----
   function box(x, y, z, w, h, d, top, front){
     const zf = z - d/2, zb = z + d/2;
     const a = proj(x-w/2, y+h, zf), b = proj(x+w/2, y+h, zf);
-    const c = proj(x+w/2, y,   zf), e = proj(x-w/2, y,   zf);
-    const a2= proj(x-w/2, y+h, zb), b2= proj(x+w/2, y+h, zb);
-    if (!a||!b||!c||!e) return;
+    const c = proj(x+w/2, y, zf), e = proj(x-w/2, y, zf);
+    const a2 = proj(x-w/2, y+h, zb), b2 = proj(x+w/2, y+h, zb);
+    if (!a||!b||!c||!e) return null;
     if (a2&&b2){ ctx.fillStyle = top; ctx.beginPath();
       ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.lineTo(b2.x,b2.y); ctx.lineTo(a2.x,a2.y);
       ctx.closePath(); ctx.fill(); }
     ctx.fillStyle = front; ctx.beginPath();
     ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.lineTo(c.x,c.y); ctx.lineTo(e.x,e.y);
     ctx.closePath(); ctx.fill();
+    return { a, b, c, e };
+  }
+  function faceRect(o, cb){
+    const f = { x:LANES[o.lane], y:o.y, z:o.z, w:o.w, h:o.h };
+    const tl = proj(f.x - f.w/2, f.y + f.h, f.z - 0.61);
+    const br = proj(f.x + f.w/2, f.y, f.z - 0.61);
+    if (!tl || !br) return;
+    cb(tl.x, tl.y, br.x - tl.x, br.y - tl.y);
   }
 
-  function draw(){
-    const T = PHASES[Math.min(phase, TOTAL_PHASES-1)];
+  // ---- themed obstacles ----
+  function drawObstacle(o, t){
+    const x = LANES[o.lane];
+    switch (o.kind){
+      case 'exam': {
+        box(x, o.y, o.z, o.w, o.h, o.d, '#e9e4d4', '#cfc7b0');
+        faceRect(o, (px,py,pw,ph) => {
+          ctx.strokeStyle = '#b4321f'; ctx.lineWidth = Math.max(2, pw*0.06);
+          ctx.beginPath();
+          ctx.moveTo(px+pw*0.25, py+ph*0.25); ctx.lineTo(px+pw*0.75, py+ph*0.75);
+          ctx.moveTo(px+pw*0.75, py+ph*0.25); ctx.lineTo(px+pw*0.25, py+ph*0.75);
+          ctx.stroke();
+          ctx.fillStyle = 'rgba(60,55,45,.5)';
+          for (let i=1;i<4;i++) ctx.fillRect(px+pw*0.12, py+ph*(0.1+i*0.05), pw*0.5, Math.max(1,ph*0.015));
+        });
+        break;
+      }
+      case 'face': {
+        box(x, o.y, o.z, o.w, o.h, o.d, '#8d7a63', '#6f5f4c');
+        faceRect(o, (px,py,pw,ph) => {
+          ctx.fillStyle = '#231d16';
+          const r = Math.max(2, pw*0.07);
+          ctx.beginPath(); ctx.arc(px+pw*0.33, py+ph*0.36, r, 0, 7); ctx.fill();
+          ctx.beginPath(); ctx.arc(px+pw*0.67, py+ph*0.36, r, 0, 7); ctx.fill();
+          ctx.strokeStyle = '#231d16'; ctx.lineWidth = Math.max(2, pw*0.05);
+          ctx.beginPath(); ctx.arc(px+pw*0.5, py+ph*0.85, pw*0.26, Math.PI*1.15, Math.PI*1.85); ctx.stroke();
+        });
+        break;
+      }
+      case 'mirror': {
+        box(x, o.y, o.z, o.w, o.h, o.d, '#9fc8d8', '#6f97ab');
+        faceRect(o, (px,py,pw,ph) => {
+          const g = ctx.createLinearGradient(px, py, px+pw, py+ph);
+          g.addColorStop(0,'rgba(255,255,255,.55)');
+          g.addColorStop(0.45 + Math.sin(t*1.6 + o.spin)*0.1,'rgba(150,190,220,.25)');
+          g.addColorStop(1,'rgba(255,255,255,.5)');
+          ctx.fillStyle = g; ctx.fillRect(px,py,pw,ph);
+          ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = Math.max(1,pw*0.03);
+          ctx.beginPath();
+          ctx.moveTo(px+pw*0.5, py);
+          ctx.lineTo(px+pw*(0.5+Math.sin(t*2+o.spin)*0.22), py+ph*0.5);
+          ctx.lineTo(px+pw*0.5, py+ph);
+          ctx.stroke();
+        });
+        break;
+      }
+      case 'bills': {
+        const n = 4;
+        for (let i=0;i<n;i++){
+          const hh = o.h/n;
+          box(x + Math.sin(i*2.1)*0.12, o.y + i*hh, o.z, o.w*0.92, hh*0.92, o.d,
+              i%2 ? '#efe7cf' : '#dcd2b6', '#b7ac90');
+        }
+        faceRect(o, (px,py,pw,ph) => {
+          ctx.fillStyle = 'rgba(150,40,30,.75)';
+          ctx.fillRect(px+pw*0.15, py+ph*0.42, pw*0.7, Math.max(2, ph*0.07));
+        });
+        break;
+      }
+      case 'turnstile': {
+        box(x, o.y, o.z, o.w, o.h*0.35, o.d, '#7f8a93', '#5b656e');
+        box(x-o.w/2, 0, o.z, 0.22, o.y + o.h, o.d, '#4c555d', '#3b434a');
+        box(x+o.w/2, 0, o.z, 0.22, o.y + o.h, o.d, '#4c555d', '#3b434a');
+        faceRect(o, (px,py,pw,ph) => {
+          ctx.strokeStyle = 'rgba(255,200,90,.8)'; ctx.lineWidth = Math.max(2, ph*0.09);
+          ctx.beginPath(); ctx.moveTo(px, py+ph*0.6); ctx.lineTo(px+pw, py+ph*0.6); ctx.stroke();
+        });
+        break;
+      }
+      case 'phone': {
+        box(x, o.y, o.z, o.w*0.8, o.h*0.7, o.d, '#2c2f38', '#1d2028');
+        faceRect(o, (px,py,pw,ph) => {
+          const on = Math.sin(t*10 + o.spin) > 0;
+          ctx.fillStyle = on ? 'rgba(120,220,140,.95)' : 'rgba(70,90,80,.6)';
+          ctx.fillRect(px+pw*0.28, py+ph*0.3, pw*0.44, ph*0.4);
+          if (on){
+            ctx.strokeStyle = 'rgba(120,220,140,.6)'; ctx.lineWidth = 2;
+            for (let r=1;r<=2;r++){ ctx.beginPath(); ctx.arc(px+pw*0.5, py+ph*0.5, pw*(0.35*r), 0, 7); ctx.stroke(); }
+          }
+        });
+        break;
+      }
+      case 'stamp': {
+        box(x, o.y, o.z, o.w, o.h*0.8, o.d, '#3a3350', '#282341');
+        faceRect(o, (px,py,pw,ph) => {
+          ctx.save();
+          ctx.translate(px+pw/2, py+ph/2);
+          ctx.rotate(-0.22 + Math.sin(t + o.spin)*0.05);
+          ctx.strokeStyle = '#e2555f'; ctx.lineWidth = Math.max(2, pw*0.04);
+          ctx.strokeRect(-pw*0.42, -ph*0.24, pw*0.84, ph*0.48);
+          ctx.fillStyle = '#e2555f';
+          ctx.font = `700 ${Math.max(8, pw*0.17)}px ui-sans-serif,system-ui`;
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText('OBSOLETE', 0, 0);
+          ctx.restore();
+          ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        });
+        break;
+      }
+      case 'medical': {
+        box(x, o.y, o.z, o.w, o.h*0.75, o.d, '#cfd8d6', '#9fb0ad');
+        faceRect(o, (px,py,pw,ph) => {
+          ctx.fillStyle = '#c0453f';
+          ctx.fillRect(px+pw*0.42, py+ph*0.18, pw*0.16, ph*0.5);
+          ctx.fillRect(px+pw*0.25, py+ph*0.35, pw*0.5, ph*0.16);
+        });
+        break;
+      }
+      case 'alarm': {
+        box(x, o.y, o.z, o.w, o.h*0.55, o.d, '#20343a', '#16262b');
+        faceRect(o, (px,py,pw,ph) => {
+          ctx.strokeStyle = 'rgba(110,230,210,.9)'; ctx.lineWidth = Math.max(2, ph*0.05);
+          ctx.beginPath();
+          const base = py + ph*0.45;
+          ctx.moveTo(px, base);
+          for (let i=0;i<=20;i++){
+            const u = i/20;
+            const spike = Math.exp(-Math.pow((u - ((t*0.55+o.spin)%1))*8, 2));
+            ctx.lineTo(px + pw*u, base - spike*ph*0.32);
+          }
+          ctx.stroke();
+        });
+        break;
+      }
+      default: box(x, o.y, o.z, o.w, o.h, o.d, '#888', '#555');
+    }
+  }
+
+  function drawOrb(g, t){
+    const p = proj(LANES[g.lane], g.y + Math.sin(t*1.6)*0.12, g.z);
+    if (!p) return;
+    const r = Math.max(2, 0.32 * p.s);
+    const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r*3.2);
+    glow.addColorStop(0, 'rgba(255,248,214,.95)');
+    glow.addColorStop(0.3, 'rgba(255,232,160,.35)');
+    glow.addColorStop(1, 'rgba(255,220,140,0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath(); ctx.arc(p.x, p.y, r*3.2, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(255,253,240,.95)';
+    ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 7); ctx.fill();
+  }
+
+  // ---- scene ----
+  function drawWorld(t){
+    const T = PHASES[phase];
     ctx.fillStyle = T.sky; ctx.fillRect(0,0,W,H);
     const hz = HORIZON();
     ctx.fillStyle = T.ground; ctx.fillRect(0, hz, W, H - hz);
@@ -181,76 +373,122 @@
     }
     const off = dist % 6;
     for (let z = -8 - off; z < DRAW_DIST; z += 6){
-      const p1 = proj(-roadHalf, 0, z), p2 = proj(roadHalf, 0, z);
-      const p3 = proj(roadHalf, 0, z+3), p4 = proj(-roadHalf, 0, z+3);
+      const p1 = proj(-roadHalf,0,z), p2 = proj(roadHalf,0,z);
+      const p3 = proj(roadHalf,0,z+3), p4 = proj(-roadHalf,0,z+3);
       if(!p1||!p2||!p3||!p4) continue;
       ctx.fillStyle = T.stripe; ctx.beginPath();
       ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.lineTo(p3.x,p3.y); ctx.lineTo(p4.x,p4.y);
       ctx.closePath(); ctx.fill();
     }
-    ctx.strokeStyle = 'rgba(255,255,255,.16)'; ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(255,255,255,.12)'; ctx.lineWidth = 2;
     for (const lx of [-LANE_W/2, LANE_W/2]){
       const p1 = proj(lx,0,-8), p2 = proj(lx,0,DRAW_DIST);
       if(p1&&p2){ ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.stroke(); }
     }
 
-    const sorted = obs.slice().sort((a,b)=>b.z-a.z);
-    for (const o of sorted){
+    for (const o of obs.slice().sort((a,b)=>b.z-a.z)){
       if (o.z > DRAW_DIST || o.z < -8) continue;
-      const x = LANES[o.lane];
-      if (o.type === 'jump') box(x,o.y,o.z,o.w,o.h,o.d,T.obs,T.obsDark);
-      else {
-        box(x,o.y,o.z,o.w,o.h,o.d,T.obs,T.obsDark);
-        box(x-o.w/2+0.1,0,o.z,0.2,o.y,o.d,T.obsDark,T.obsDark);
-        box(x+o.w/2-0.1,0,o.z,0.2,o.y,o.d,T.obsDark,T.obsDark);
-      }
+      drawObstacle(o, t);
     }
+    for (const g of orbs) if (!g.got && g.z < DRAW_DIST && g.z > -6) drawOrb(g, t);
 
     const sp = proj(P.x, 0.01, 0);
     if (sp){
       const r = 26 * (sp.s/FOV) * 12 / (1 + P.y*0.4);
       ctx.fillStyle = 'rgba(0,0,0,.35)';
-      ctx.beginPath(); ctx.ellipse(sp.x, sp.y, r*1.2, r*0.45, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(sp.x, sp.y, r*1.2, r*0.45, 0, 0, 7); ctx.fill();
     }
-
     const blink = P.invuln > 0 && Math.floor(P.invuln * 12) % 2 === 0;
     if (!blink){
       const ph = P.sliding ? 0.7 : P.h;
       const pw = P.sliding ? P.w*1.25 : P.w;
       const hurt = P.hurt > 0;
       box(P.x, P.y, 0, pw, ph, P.sliding ? 1.4 : 0.9,
-          hurt ? '#ff8a8a' : '#8ee66a', hurt ? '#d94f4f' : '#4faf3c');
+          hurt ? '#e8b3b3' : '#dfe7f2', hurt ? '#b4595b' : '#9aa8bd');
     }
 
     if (flash > 0){
-      ctx.fillStyle = `rgba(${flashRGB},${(flash*0.7).toFixed(3)})`;
+      ctx.fillStyle = `rgba(${flashRGB},${(flash*0.65).toFixed(3)})`;
       ctx.fillRect(0,0,W,H);
-    }
-
-    if (ended){
-      ctx.fillStyle = 'rgba(0,0,0,.72)'; ctx.fillRect(0,0,W,H);
-      ctx.textAlign = 'center'; ctx.fillStyle = '#f2f5fa';
-      ctx.font = '600 44px ui-sans-serif,system-ui';
-      ctx.fillText('The End', W/2, H/2 - 4);
-      ctx.font = '14px ui-monospace,monospace';
-      ctx.fillStyle = '#9fb0c7';
-      ctx.fillText(`${Math.floor(dist)} m · 7 phases complete`, W/2, H/2 + 26);
-      ctx.textAlign = 'left';
     }
   }
 
-  let last = performance.now();
-  function loop(now){
-    const dt = Math.min((now - last)/1000, 0.05); last = now;
+  const INTRO_LINES = [
+    { t: 1.2, s: 'He is lying in his bed.' },
+    { t: 3.4, s: 'The room is quiet.' },
+    { t: 5.6, s: 'His breathing is slowing.' },
+  ];
 
+  function drawIntro(t){
+    ctx.fillStyle = '#05060a'; ctx.fillRect(0,0,W,H);
+    const pulse = 0.5 + 0.5 * Math.sin(t * 0.9);
+    const r = Math.min(W,H) * (0.28 + pulse * 0.07);
+    const g = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, r);
+    g.addColorStop(0, `rgba(150,170,205,${0.10 + pulse*0.09})`);
+    g.addColorStop(1, 'rgba(10,12,18,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(W/2, H/2, r, 0, 7); ctx.fill();
+
+    ctx.textAlign = 'center';
+    ctx.font = '300 20px ui-sans-serif,system-ui';
+    INTRO_LINES.forEach((l, i) => {
+      const a = Math.min(1, Math.max(0, (introT - l.t) / 1.1));
+      if (a <= 0) return;
+      ctx.fillStyle = `rgba(223,231,242,${a * 0.9})`;
+      ctx.fillText(l.s, W/2, H/2 - 34 + i * 34);
+    });
+    if (introT > 6.6){
+      const a = 0.35 + 0.35 * Math.sin(t*1.6);
+      ctx.font = '12px ui-monospace,monospace';
+      ctx.fillStyle = `rgba(150,163,182,${a})`;
+      ctx.fillText('click when you\u2019re ready', W/2, H/2 + 108);
+    }
+    ctx.textAlign = 'left';
+  }
+
+  function drawEnd(){
+    drawWorld(0);
+    const fade = Math.min(1, endT / 1.6);
+    ctx.fillStyle = `rgba(4,5,8,${fade})`; ctx.fillRect(0,0,W,H);
+    ctx.textAlign = 'center';
+    const a1 = Math.min(1, Math.max(0, (endT - 1.8) / 1.4));
+    if (a1 > 0){
+      ctx.fillStyle = `rgba(216,224,236,${a1 * 0.9})`;
+      ctx.font = '300 18px ui-sans-serif,system-ui';
+      const line = `He gathered ${moments} moment${moments === 1 ? '' : 's'} of presence, across a lifetime`;
+      ctx.fillText(line, W/2, H/2 - 18);
+      ctx.fillText('spent running from 6 different things.', W/2, H/2 + 10);
+    }
+    const a2 = Math.min(1, Math.max(0, (endT - 5.4) / 1.6));
+    if (a2 > 0){
+      ctx.fillStyle = `rgba(226,232,242,${a2 * 0.92})`;
+      ctx.font = '300 22px ui-sans-serif,system-ui';
+      ctx.fillText('Did he live?', W/2, H/2 + 78);
+    }
+    ctx.textAlign = 'left';
+    if (endT > 8 && againEl.style.display !== 'block') againEl.style.display = 'block';
+  }
+
+  // ---- loop ----
+  let last = performance.now(), t = 0;
+  function loop(now){
+    const dt = Math.min((now - last)/1000, 0.05); last = now; t += dt;
     if (flash > 0) flash = Math.max(0, flash - dt * 2.6);
 
-    if (!ended){
-      speed = Math.min(38, speed + dt * 0.45);
+    if (mode === 'intro'){
+      introT += dt;
+      drawIntro(t);
+    } else if (mode === 'play'){
+      const lastPhase = phase === TOTAL - 1;
+
+      if (lastPhase){
+        speed = Math.max(0, speed - dt * 2.6);
+        if (speed <= 0.05){ speed = 0; finish(); }
+      } else {
+        speed = Math.min(38, speed + dt * 0.45);
+      }
       dist += speed * dt;
 
       P.x += (LANES[P.lane] - P.x) * Math.min(1, dt * 14);
-
       if (P.jumping){
         P.vy += GRAV * dt; P.y += P.vy * dt;
         if (P.y <= 0){ P.y = 0; P.vy = 0; P.jumping = false; }
@@ -260,23 +498,28 @@
       if (P.hurt > 0) P.hurt -= dt;
 
       for (const o of obs) o.z -= speed * dt;
+      for (const g of orbs) g.z -= speed * dt;
       while (obs.length && obs[0].z < -12) obs.shift();
-      nextZ -= speed * dt;
-      while (nextZ < DRAW_DIST) spawn();
 
-      if (P.invuln <= 0){
-        for (const o of obs){ if (hit(o)){ advance(true); break; } }
+      if (!lastPhase){
+        nextZ -= speed * dt;
+        while (nextZ < DRAW_DIST) spawn();
+        if (P.invuln <= 0){
+          for (const o of obs){ if (hits(o)){ advance(true); break; } }
+        }
       }
-      if (!ended && dist - phaseStart >= phaseLen) advance(false);
+      for (const g of orbs){ if (!g.got && grabs(g)){ g.got = true; moments++; } }
 
-      distLabel.textContent = `${Math.floor(dist)} m`;
+      if (mode === 'play' && !lastPhase && dist - phaseStart >= phaseLen) advance(false);
+
+      drawWorld(t);
+    } else {
+      endT += dt;
+      drawEnd();
     }
 
-    draw();
     requestAnimationFrame(loop);
   }
-
-  startPhase(0);
   requestAnimationFrame(loop);
 })();
 </script>
