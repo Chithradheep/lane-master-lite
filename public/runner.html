@@ -17,21 +17,27 @@
   canvas{display:block;width:100%;height:100%}
 
   #hud{position:fixed;top:26px;left:30px;color:var(--bright);pointer-events:none;
-       opacity:0;transition:opacity .8s ease;font-family:var(--sans)}
+       opacity:0;transition:opacity .8s ease;font-family:var(--sans);
+       padding:14px 26px 16px 18px;margin:-14px 0 0 -18px;
+       background:radial-gradient(120% 120% at 0% 0%, rgba(8,9,12,.52) 0%, rgba(8,9,12,.28) 55%, rgba(8,9,12,0) 100%);
+       text-shadow:0 1px 3px rgba(5,6,9,.75)}
   #hud.on{opacity:1}
-  #chapter{font-family:var(--sans);font-size:9.5px;letter-spacing:.34em;text-transform:uppercase;
-           color:color-mix(in oklab, var(--dim) 70%, transparent)}
-  #hud b{display:block;font-family:var(--serif);font-weight:400;font-size:27px;line-height:1.15;
-         letter-spacing:.005em;color:var(--bright);margin-top:5px}
-  #hud span{display:block;font-family:var(--serif);font-style:italic;font-weight:300;font-size:15px;
-            color:var(--dim);margin-top:1px}
-  #bar{margin-top:14px;width:168px;height:1px;background:color-mix(in oklab, var(--dim) 26%, transparent)}
-  #barFill{height:100%;width:0;background:var(--bright);transition:width .12s linear}
-  #pips{display:flex;gap:5px;margin-top:9px}
-  #pips i{width:16px;height:1px;background:color-mix(in oklab, var(--dim) 22%, transparent);display:block;
+  #chapter{font-family:var(--sans);font-size:11px;letter-spacing:.32em;text-transform:uppercase;
+           color:color-mix(in oklab, var(--bright) 62%, transparent)}
+  #hud b{display:block;font-family:var(--serif);font-weight:500;font-size:30px;line-height:1.14;
+         letter-spacing:.005em;color:var(--bright);margin-top:6px}
+  #hud span{display:block;font-family:var(--serif);font-style:italic;font-weight:400;font-size:16.5px;
+            color:color-mix(in oklab, var(--bright) 74%, transparent);margin-top:2px}
+  #bar{margin-top:16px;width:180px;height:2px;border-radius:2px;
+       background:rgba(230,233,239,.20);box-shadow:0 1px 2px rgba(5,6,9,.6)}
+  #barFill{height:100%;width:0;border-radius:2px;background:var(--bright);
+           box-shadow:0 0 6px rgba(230,233,239,.35);transition:width .12s linear}
+  #pips{display:flex;gap:6px;margin-top:11px}
+  #pips i{width:17px;height:2px;border-radius:2px;background:rgba(230,233,239,.16);display:block;
           transition:background .5s ease}
-  #pips i.done{background:color-mix(in oklab, var(--dim) 65%, transparent)}
-  #pips i.cur{background:var(--bright)}
+  #pips i.done{background:rgba(230,233,239,.52)}
+  #pips i.cur{background:var(--bright);box-shadow:0 0 6px rgba(230,233,239,.45)}
+
 
   #again{position:fixed;left:50%;transform:translateX(-50%);bottom:13%;
          font-family:var(--sans);font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;
