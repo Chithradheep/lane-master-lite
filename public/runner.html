@@ -695,7 +695,10 @@
     const T = PHASES[phase];
     ctx.fillStyle = T.sky; ctx.fillRect(0,0,W,H);
     const hz = HORIZON();
+    drawSkyline(T);
     ctx.fillStyle = T.ground; ctx.fillRect(0, hz, W, H - hz);
+    drawScenery(t);
+
 
     const roadHalf = LANE_W*1.5 + 0.4;
     const nf = proj(-roadHalf,0,DRAW_DIST), ff = proj(roadHalf,0,DRAW_DIST);
