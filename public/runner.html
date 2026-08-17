@@ -139,6 +139,7 @@
   function startPhase(i){
     phase = i; phaseStart = dist; phaseLen = nextLen();
     obs.length = 0; orbs.length = 0; nextZ = 50; orbPlaced = false;
+    resetEnv();
     const T = PHASES[i];
     phaseLabel.textContent = T.name;
     subLabel.textContent = T.sub;
