@@ -733,13 +733,7 @@
       ctx.beginPath(); ctx.ellipse(sp.x, sp.y, r*1.2, r*0.45, 0, 0, 7); ctx.fill();
     }
     const blink = P.invuln > 0 && Math.floor(P.invuln * 12) % 2 === 0;
-    if (!blink){
-      const ph = P.sliding ? 0.7 : P.h;
-      const pw = P.sliding ? P.w*1.25 : P.w;
-      const hurt = P.hurt > 0;
-      box(P.x, P.y, 0, pw, ph, P.sliding ? 1.4 : 0.9,
-          hurt ? '#c9a4a4' : '#c3cbd8', hurt ? '#8f4a4c' : '#7d8998');
-    }
+    if (!blink) drawRunner();
 
     colorGrade(T);
     drawParticles(T.particles, dt, t);
