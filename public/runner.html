@@ -514,14 +514,21 @@
       const pw = P.sliding ? P.w*1.25 : P.w;
       const hurt = P.hurt > 0;
       box(P.x, P.y, 0, pw, ph, P.sliding ? 1.4 : 0.9,
-          hurt ? '#e8b3b3' : '#dfe7f2', hurt ? '#b4595b' : '#9aa8bd');
+          hurt ? '#c9a4a4' : '#c3cbd8', hurt ? '#8f4a4c' : '#7d8998');
     }
 
+    colorGrade(T);
+    drawParticles(T.particles, dt, t);
+
     if (flash > 0){
-      ctx.fillStyle = `rgba(${flashRGB},${(flash*0.65).toFixed(3)})`;
+      ctx.fillStyle = `rgba(${flashRGB},${(flash*0.5).toFixed(3)})`;
       ctx.fillRect(0,0,W,H);
     }
+
+    drawVignette();
+    drawGrain(dt);
   }
+
 
   const INTRO_LINES = [
     { t: 1.2, s: 'He is lying in his bed.' },
