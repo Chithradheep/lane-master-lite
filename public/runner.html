@@ -176,6 +176,7 @@
     obs.length = 0; orbs.length = 0; nextZ = 50; orbPlaced = false;
     resetEnv();
     const T = PHASES[i];
+    chapterEl.textContent = ['One','Two','Three','Four','Five','Six','Seven'][i] + ' of Seven';
     phaseLabel.textContent = T.name;
     subLabel.textContent = T.sub;
     if (i === TOTAL - 1) subLabel.textContent = '';
