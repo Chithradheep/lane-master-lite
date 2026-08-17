@@ -656,59 +656,62 @@
     const air = P.jumping, a = runCycle;
     const bob = air ? 0 : Math.abs(Math.sin(a)) * 0.05;
     const hipY = P.y + 0.80 + bob, shoY = P.y + 1.30 + bob, headY = P.y + 1.56 + bob;
-    const lean = air ? 0.05 : 0.10;
 
+    // back view: the runner faces straight down the road, no sideways lean.
     for (const side of [-1, 1]){
       const ph = side < 0 ? 0 : Math.PI;
+      const hipX = P.x + side*0.13;
       let footX, footY, kneeX, kneeY;
       if (air){
-        footX = P.x + side*0.10 + (side < 0 ? 0.26 : -0.18);
-        footY = P.y + (side < 0 ? 0.44 : 0.22);
-        kneeX = P.x + side*0.14 + 0.14; kneeY = P.y + 0.54;
+        footX = hipX + side*0.03;
+        footY = P.y + (side < 0 ? 0.34 : 0.20);
+        kneeX = hipX + side*0.05; kneeY = P.y + 0.52;
       } else {
         const sw = Math.sin(a + ph), lift = Math.max(0, -Math.cos(a + ph));
-        footX = P.x + side*0.14 + sw*0.34;
-        footY = P.y + lift * 0.30;
-        kneeX = P.x + side*0.14 + sw*0.20 + 0.06;
-        kneeY = P.y + 0.42 + lift * 0.12;
+        footX = hipX + side*0.02 + sw*0.05;
+        footY = P.y + lift * 0.34;
+        kneeX = hipX + side*0.04;
+        kneeY = P.y + 0.42 + lift * 0.16;
       }
       const c = side < 0 ? cloth2 : cloth;
-      limb(P.x + side*0.14, hipY, kneeX, kneeY, 0.22, c);
+      limb(hipX, hipY, kneeX, kneeY, 0.22, c);
       limb(kneeX, kneeY, footX, footY, 0.17, c);
       ctx.fillStyle = '#2f343d';
-      ctx.beginPath(); ctx.ellipse(PX(footX), PY(footY), Math.max(1.5,0.13*S), Math.max(1,0.07*S), 0, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(PX(footX), PY(footY), Math.max(1.5,0.12*S), Math.max(1,0.07*S), 0, 0, 7); ctx.fill();
     }
 
-    limb(P.x + lean*0.4, hipY - 0.02, P.x + lean, shoY, 0.44, cloth);
+    limb(P.x, hipY - 0.02, P.x, shoY, 0.44, cloth);
 
     for (const side of [-1, 1]){
       const ph = side < 0 ? Math.PI : 0;
+      const shX = P.x + side*0.20;
       let elbX, elbY, handX, handY;
       if (air){
-        elbX = P.x + side*0.26; elbY = shoY - 0.04;
-        handX = P.x + side*0.34; handY = shoY + 0.30;
+        elbX = shX + side*0.07; elbY = shoY - 0.08;
+        handX = shX + side*0.10; handY = shoY + 0.20;
       } else {
         const sw = Math.sin(a + ph);
-        elbX = P.x + side*0.24 - sw*0.14; elbY = shoY - 0.26;
-        handX = elbX - sw*0.20 + 0.06; handY = shoY - 0.42 + Math.max(0, sw)*0.28;
+        elbX = shX + side*0.05; elbY = shoY - 0.26 - Math.max(0, -sw)*0.04;
+        handX = shX + side*0.04; handY = shoY - 0.40 + Math.max(0, sw)*0.30;
       }
       const c = side < 0 ? cloth2 : cloth;
-      limb(P.x + side*0.20, shoY - 0.02, elbX, elbY, 0.17, c);
+      limb(shX, shoY - 0.02, elbX, elbY, 0.17, c);
       limb(elbX, elbY, handX, handY, 0.14, skin);
     }
 
-    const hx = P.x + lean*1.1;
     ctx.fillStyle = skin;
-    ctx.beginPath(); ctx.ellipse(PX(hx), PY(headY), Math.max(2, 0.17*S), Math.max(2, 0.20*S), 0, 0, 7); ctx.fill();
-    ctx.fillStyle = 'rgba(24,26,32,.8)';
-    ctx.beginPath(); ctx.ellipse(PX(hx), PY(headY + 0.09), Math.max(2, 0.175*S), Math.max(1, 0.11*S), 0, Math.PI, 0); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(PX(P.x), PY(headY), Math.max(2, 0.17*S), Math.max(2, 0.20*S), 0, 0, 7); ctx.fill();
+    // back of the head (hair) — confirms he is facing away from the camera
+    ctx.fillStyle = 'rgba(24,26,32,.85)';
+    ctx.beginPath(); ctx.ellipse(PX(P.x), PY(headY + 0.04), Math.max(2, 0.175*S), Math.max(2, 0.17*S), 0, 0, 7); ctx.fill();
     ctx.strokeStyle = 'rgba(226,232,244,.16)';
     ctx.lineWidth = Math.max(1, 0.035*S);
     ctx.beginPath();
-    ctx.moveTo(PX(hx + 0.15), PY(headY + 0.08));
-    ctx.lineTo(PX(P.x + lean + 0.22), PY(shoY - 0.32));
+    ctx.moveTo(PX(P.x - 0.17), PY(headY - 0.02));
+    ctx.lineTo(PX(P.x - 0.20), PY(shoY - 0.10));
     ctx.stroke();
   }
+
 
   function drawWorld(t, dt = 0){
 
