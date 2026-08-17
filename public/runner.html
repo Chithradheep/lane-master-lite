@@ -52,27 +52,35 @@
   // ---- phases ----
   const PHASES = [
     { name:'Childhood', sub:'Surviving Approval',
-      sky:'#1a1408', ground:'#241c0d', road:'#332711', stripe:'#3c2e15',
+      sky:'#161307', ground:'#1e1a0f', road:'#2a2415', stripe:'#312a19',
+      tint:'138,116,74', haze:0.10, particles:'dust',
       kinds:['exam','face'] },
     { name:'Adolescence', sub:'Surviving Belonging',
-      sky:'#0d1622', ground:'#122031', road:'#1a2c42', stripe:'#20344e',
+      sky:'#0d1319', ground:'#111a22', road:'#18242e', stripe:'#1d2a36',
+      tint:'96,120,142', haze:0.12, particles:'motes',
       kinds:['mirror'] },
     { name:'Early Adulthood', sub:'Surviving the System',
-      sky:'#101812', ground:'#16241b', road:'#1e3325', stripe:'#243d2c',
+      sky:'#0f1412', ground:'#141b18', road:'#1b2521', stripe:'#202b27',
+      tint:'96,116,106', haze:0.11, particles:'fog',
       kinds:['bills','turnstile'] },
     { name:'Building a Family', sub:'Surviving Responsibility',
-      sky:'#1b1410', ground:'#271c15', road:'#36271d', stripe:'#402f23',
+      sky:'#17120e', ground:'#201913', road:'#2c221a', stripe:'#342820',
+      tint:'134,106,80', haze:0.10, particles:'dust',
       kinds:['bills','phone'] },
     { name:'Midlife', sub:'Surviving Irrelevance',
-      sky:'#181523', ground:'#221d31', road:'#2e2743', stripe:'#372e4f',
+      sky:'#14121b', ground:'#1c1926', road:'#262134', stripe:'#2c273c',
+      tint:'110,100,132', haze:0.12, particles:'ash',
       kinds:['stamp'] },
     { name:'Decline', sub:'Surviving the Body',
-      sky:'#101a1c', ground:'#152427', road:'#1c3135', stripe:'#223a3f',
+      sky:'#0e1517', ground:'#131d20', road:'#19272a', stripe:'#1e2e32',
+      tint:'92,116,120', haze:0.13, particles:'fog',
       kinds:['medical','alarm'] },
     { name:'The Last Breath', sub:'',
-      sky:'#05060a', ground:'#080a10', road:'#0c1018', stripe:'#0f141e',
+      sky:'#05060a', ground:'#07090e', road:'#0a0e15', stripe:'#0d1119',
+      tint:'70,80,104', haze:0.14, particles:'embers',
       kinds:[] },
   ];
+
   const TOTAL = PHASES.length;
 
   // ---- state ----
