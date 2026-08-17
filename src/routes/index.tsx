@@ -1,24 +1,35 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Lane Runner — 3-Lane Endless Runner Prototype" },
+      {
+        name: "description",
+        content:
+          "Canvas endless runner prototype: auto-run, lane switching, jumping, sliding and obstacle collisions.",
+      },
+      { property: "og:title", content: "Lane Runner — Endless Runner Prototype" },
+      {
+        property: "og:description",
+        content: "Arrow keys or swipes to switch lanes, jump and slide past obstacles.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
+    <main className="h-screen w-screen overflow-hidden bg-background">
+      <h1 className="sr-only">Lane Runner endless runner prototype</h1>
+      <iframe
+        src="/runner.html"
+        title="Lane Runner game"
+        className="h-full w-full border-0"
       />
-    </div>
+    </main>
   );
 }
