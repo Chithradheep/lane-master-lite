@@ -875,6 +875,8 @@
       }
       for (const g of orbs){ if (!g.got && grabs(g)){ g.got = true; moments++; } }
 
+      barFill.style.width = (lastPhase ? 100 : Math.max(0, Math.min(1, (dist - phaseStart) / phaseLen)) * 100).toFixed(1) + '%';
+
       if (mode === 'play' && !lastPhase && dist - phaseStart >= phaseLen) advance(false);
 
       drawWorld(t, dt);
