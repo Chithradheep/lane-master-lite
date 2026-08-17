@@ -466,6 +466,230 @@
     ctx.fillStyle = g; ctx.fillRect(0, hz - H*0.12, W, H*0.42);
   }
 
+  function hexA(hex, a){
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+  }
+
+  // ---- environments ----
+  const ENV = [
+    { h:[1.0,2.0], w:[1.4,2.4], gap:[8,14], col:'#241f13', top:'#2f2818', win:0.10, winCol:'232,196,124', lamp:12, lampCol:'234,204,140', sky:[0.10,0.22], skyCol:'#20190e', glow:'#e8c489', glowY:0.30 },
+    { h:[2.2,4.2], w:[0.9,1.5], gap:[6,10], col:'#131d26', top:'#1a2833', win:0.34, winCol:'150,190,224', lamp:16, lampCol:'160,196,226', sky:[0.16,0.30], skyCol:'#101922', glow:'#7f9dc0', glowY:0.24 },
+    { h:[4.0,9.0], w:[1.6,3.0], gap:[5,9],  col:'#111815', top:'#18211d', win:0.55, winCol:'186,206,170', lamp:14, lampCol:'176,200,168', sky:[0.30,0.62], skyCol:'#0d1311', glow:'#8fae96', glowY:0.16 },
+    { h:[1.6,2.8], w:[2.0,3.2], gap:[9,15], col:'#231a13', top:'#33251a', win:0.40, winCol:'238,186,118', lamp:11, lampCol:'238,190,126', sky:[0.10,0.20], skyCol:'#1d1610', glow:'#e0a76d', glowY:0.28 },
+    { h:[3.4,7.0], w:[1.8,2.8], gap:[7,12], col:'#191527', top:'#221d33', win:0.22, winCol:'168,158,200', lamp:18, lampCol:'160,150,196', sky:[0.24,0.48], skyCol:'#141020', glow:'#8e84b4', glowY:0.20 },
+    { h:[2.0,4.0], w:[1.6,2.6], gap:[8,13], col:'#121b1e', top:'#1a262a', win:0.16, winCol:'168,206,204', lamp:13, lampCol:'150,196,192', sky:[0.14,0.28], skyCol:'#0e1618', glow:'#7fb0ae', glowY:0.26 },
+    { h:[0.6,1.2], w:[0.5,0.8], gap:[16,26],col:'#0a0e15', top:'#0d121a', win:0,    winCol:'200,214,240', lamp:9,  lampCol:'198,214,244', sky:[0.05,0.10], skyCol:'#070910', glow:'#93a6cc', glowY:0.34 },
+  ];
+
+  let props = [], nextPropZ = 0, nextLampZ = 0, skyline = null, skylinePhase = -1;
+
+  function resetEnv(){
+    props = []; nextPropZ = -6; nextLampZ = -6; skyline = null; skylinePhase = -1;
+    while (nextPropZ < DRAW_DIST) spawnProp();
+    while (nextLampZ < DRAW_DIST) spawnLamp();
+  }
+  function spawnProp(){
+    const E = ENV[phase];
+    const w = rand(E.w[0], E.w[1]);
+    props.push({ t:'block', side: Math.random() < 0.5 ? -1 : 1, z: nextPropZ, w,
+      d: rand(w*0.8, w*1.6), h: rand(E.h[0], E.h[1]),
+      off: rand(5.2, 9.5), seed: Math.random(),
+      roof: phase === 3 ? rand(0.5, 0.9) : 0 });
+    nextPropZ += rand(E.gap[0], E.gap[1]);
+  }
+  function spawnLamp(){
+    props.push({ t:'lamp', side: Math.random() < 0.5 ? -1 : 1, z: nextLampZ, off: 1.2, seed: Math.random() });
+    nextLampZ += ENV[phase].lamp * rand(0.8, 1.25);
+  }
+  function updateEnv(dz){
+    for (const p of props) p.z -= dz;
+    for (let i = props.length - 1; i >= 0; i--) if (props[i].z < -14) props.splice(i,1);
+    nextPropZ -= dz; nextLampZ -= dz;
+    while (nextPropZ < DRAW_DIST) spawnProp();
+    while (nextLampZ < DRAW_DIST) spawnLamp();
+  }
+
+  function drawSkyline(T){
+    const E = ENV[phase], hz = HORIZON();
+    const gx = W * (0.28 + 0.44 * ((phase * 0.37) % 1));
+    const gy = hz - H * E.glowY * 0.28;
+    const gr = Math.min(W,H) * (0.34 + E.glowY);
+    const gl = ctx.createRadialGradient(gx, gy, 0, gx, gy, gr);
+    gl.addColorStop(0, hexA(E.glow, 0.16));
+    gl.addColorStop(0.45, hexA(E.glow, 0.05));
+    gl.addColorStop(1, hexA(E.glow, 0));
+    ctx.fillStyle = gl; ctx.fillRect(0, 0, W, hz + H*0.06);
+
+    if (skylinePhase !== phase || !skyline){
+      skylinePhase = phase;
+      let seed = 1337 + phase * 91;
+      const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+      skyline = [];
+      for (let layer = 0; layer < 2; layer++){
+        const row = []; let x = -0.05;
+        while (x < 1.05){
+          const w = 0.02 + rnd()*0.05;
+          row.push({ x, w, h: E.sky[0] + rnd()*(E.sky[1]-E.sky[0]), lit: rnd() < E.win*0.5 });
+          x += w + rnd()*0.02;
+        }
+        skyline.push(row);
+      }
+    }
+    for (let layer = 0; layer < 2; layer++){
+      const depth = layer === 0 ? 0.55 : 1;
+      for (const b of skyline[layer]){
+        const bh = H * b.h * depth * 0.9;
+        const bx = W * (b.x + (layer === 0 ? 0.012 : 0));
+        ctx.fillStyle = hexA(E.skyCol, layer === 0 ? 0.55 : 0.95);
+        ctx.fillRect(bx, hz - bh, W * b.w, bh + 2);
+        if (b.lit && layer === 1){
+          ctx.fillStyle = `rgba(${E.winCol},.13)`;
+          ctx.fillRect(bx + W*b.w*0.35, hz - bh*0.72, Math.max(1, W*b.w*0.16), Math.max(1, bh*0.06));
+        }
+      }
+    }
+  }
+
+  function drawScenery(t){
+    const E = ENV[phase];
+    const list = props.filter(p => p.z > -12 && p.z < DRAW_DIST).sort((a,b)=>b.z-a.z);
+    for (const p of list){
+      const fade = Math.max(0, Math.min(1, 1 - (p.z / DRAW_DIST) * 0.85));
+      ctx.globalAlpha = 0.30 + fade * 0.70;
+      const x = p.side * (LANE_W*1.5 + p.off * 0.6);
+      if (p.t === 'lamp'){
+        const lx = p.side * (LANE_W*1.5 + p.off), poleH = 3.6;
+        box(lx, 0, p.z, 0.13, poleH, 0.13, E.top, E.col);
+        box(lx - p.side*0.3, poleH - 0.16, p.z, 0.72, 0.12, 0.12, E.top, E.col);
+        const lp = proj(lx - p.side*0.62, poleH - 0.26, p.z);
+        if (lp){
+          const r = Math.max(2, 0.5 * lp.s);
+          const g = ctx.createRadialGradient(lp.x, lp.y, 0, lp.x, lp.y, r*2.8);
+          g.addColorStop(0, `rgba(${E.lampCol},.38)`);
+          g.addColorStop(1, `rgba(${E.lampCol},0)`);
+          ctx.fillStyle = g; ctx.beginPath(); ctx.arc(lp.x, lp.y, r*2.8, 0, 7); ctx.fill();
+          ctx.fillStyle = `rgba(${E.lampCol},.5)`;
+          ctx.beginPath(); ctx.arc(lp.x, lp.y, Math.max(1, r*0.32), 0, 7); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        continue;
+      }
+      box(x, 0, p.z, p.w, p.h, p.d, E.top, E.col);
+      if (p.roof){
+        const a = proj(x - p.w/2, p.h, p.z - p.d/2), b = proj(x + p.w/2, p.h, p.z - p.d/2);
+        const c = proj(x, p.h + p.roof, p.z - p.d/2);
+        if (a&&b&&c){ ctx.fillStyle = E.top; ctx.beginPath();
+          ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.lineTo(c.x,c.y); ctx.closePath(); ctx.fill(); }
+      }
+      if (E.win > 0 && p.z > 0.5){
+        const cols = Math.max(1, Math.round(p.w / 0.8));
+        const rows = Math.max(1, Math.round(p.h / 0.95));
+        let s = Math.floor(p.seed * 9973) + 1;
+        const rnd = () => ((s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+        for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++){
+          if (rnd() > E.win) continue;
+          const wx = x - p.w/2 + p.w * ((c + 0.5) / cols);
+          const wy = p.h * ((r + 0.55) / rows);
+          const tl = proj(wx - p.w/(cols*3.4), wy + p.h/(rows*3.2), p.z - p.d/2 - 0.01);
+          const br = proj(wx + p.w/(cols*3.4), wy - p.h/(rows*3.2), p.z - p.d/2 - 0.01);
+          if (!tl || !br) continue;
+          const flick = 0.22 + 0.09 * Math.sin(t*0.6 + p.seed*20 + r + c);
+          ctx.fillStyle = `rgba(${E.winCol},${flick.toFixed(3)})`;
+          ctx.fillRect(tl.x, tl.y, Math.max(1, br.x-tl.x), Math.max(1, br.y-tl.y));
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // ---- the runner ----
+  let runCycle = 0;
+  function drawRunner(){
+    const base = proj(P.x, 0, 0);
+    if (!base) return;
+    const S = base.s, hz = HORIZON();
+    const PX = wx => W/2 + wx * S;
+    const PY = wy => hz + (CAM_H - wy) * S;
+    const hurt = P.hurt > 0;
+    const skin   = hurt ? '#b3837f' : '#a8927c';
+    const cloth  = hurt ? '#8d4f50' : '#6f7a8a';
+    const cloth2 = hurt ? '#6d3c3e' : '#525c6b';
+
+    const limb = (x1,y1,x2,y2,thick,col) => {
+      ctx.strokeStyle = col; ctx.lineCap = 'round';
+      ctx.lineWidth = Math.max(1.5, thick * S);
+      ctx.beginPath(); ctx.moveTo(PX(x1), PY(y1)); ctx.lineTo(PX(x2), PY(y2)); ctx.stroke();
+    };
+
+    if (P.sliding){
+      const y = P.y + 0.16;
+      limb(P.x-0.30, y+0.14, P.x+0.26, y+0.34, 0.36, cloth);
+      limb(P.x-0.30, y+0.16, P.x-0.60, y+0.08, 0.22, cloth2);
+      limb(P.x-0.60, y+0.08, P.x-0.80, y+0.18, 0.17, cloth2);
+      limb(P.x+0.08, y+0.34, P.x+0.30, y+0.62, 0.15, skin);
+      ctx.fillStyle = skin;
+      ctx.beginPath(); ctx.ellipse(PX(P.x+0.34), PY(y+0.56), Math.max(2,0.18*S), Math.max(2,0.19*S), 0, 0, 7); ctx.fill();
+      return;
+    }
+
+    const air = P.jumping, a = runCycle;
+    const bob = air ? 0 : Math.abs(Math.sin(a)) * 0.05;
+    const hipY = P.y + 0.80 + bob, shoY = P.y + 1.30 + bob, headY = P.y + 1.56 + bob;
+    const lean = air ? 0.05 : 0.10;
+
+    for (const side of [-1, 1]){
+      const ph = side < 0 ? 0 : Math.PI;
+      let footX, footY, kneeX, kneeY;
+      if (air){
+        footX = P.x + side*0.10 + (side < 0 ? 0.26 : -0.18);
+        footY = P.y + (side < 0 ? 0.44 : 0.22);
+        kneeX = P.x + side*0.14 + 0.14; kneeY = P.y + 0.54;
+      } else {
+        const sw = Math.sin(a + ph), lift = Math.max(0, -Math.cos(a + ph));
+        footX = P.x + side*0.14 + sw*0.34;
+        footY = P.y + lift * 0.30;
+        kneeX = P.x + side*0.14 + sw*0.20 + 0.06;
+        kneeY = P.y + 0.42 + lift * 0.12;
+      }
+      const c = side < 0 ? cloth2 : cloth;
+      limb(P.x + side*0.14, hipY, kneeX, kneeY, 0.22, c);
+      limb(kneeX, kneeY, footX, footY, 0.17, c);
+      ctx.fillStyle = '#2f343d';
+      ctx.beginPath(); ctx.ellipse(PX(footX), PY(footY), Math.max(1.5,0.13*S), Math.max(1,0.07*S), 0, 0, 7); ctx.fill();
+    }
+
+    limb(P.x + lean*0.4, hipY - 0.02, P.x + lean, shoY, 0.44, cloth);
+
+    for (const side of [-1, 1]){
+      const ph = side < 0 ? Math.PI : 0;
+      let elbX, elbY, handX, handY;
+      if (air){
+        elbX = P.x + side*0.26; elbY = shoY - 0.04;
+        handX = P.x + side*0.34; handY = shoY + 0.30;
+      } else {
+        const sw = Math.sin(a + ph);
+        elbX = P.x + side*0.24 - sw*0.14; elbY = shoY - 0.26;
+        handX = elbX - sw*0.20 + 0.06; handY = shoY - 0.42 + Math.max(0, sw)*0.28;
+      }
+      const c = side < 0 ? cloth2 : cloth;
+      limb(P.x + side*0.20, shoY - 0.02, elbX, elbY, 0.17, c);
+      limb(elbX, elbY, handX, handY, 0.14, skin);
+    }
+
+    const hx = P.x + lean*1.1;
+    ctx.fillStyle = skin;
+    ctx.beginPath(); ctx.ellipse(PX(hx), PY(headY), Math.max(2, 0.17*S), Math.max(2, 0.20*S), 0, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(24,26,32,.8)';
+    ctx.beginPath(); ctx.ellipse(PX(hx), PY(headY + 0.09), Math.max(2, 0.175*S), Math.max(1, 0.11*S), 0, Math.PI, 0); ctx.fill();
+    ctx.strokeStyle = 'rgba(226,232,244,.16)';
+    ctx.lineWidth = Math.max(1, 0.035*S);
+    ctx.beginPath();
+    ctx.moveTo(PX(hx + 0.15), PY(headY + 0.08));
+    ctx.lineTo(PX(P.x + lean + 0.22), PY(shoY - 0.32));
+    ctx.stroke();
+  }
+
   function drawWorld(t, dt = 0){
 
     const T = PHASES[phase];
