@@ -12,6 +12,12 @@
   #hud.on{opacity:.85}
   #hud b{display:block;font-size:13px;letter-spacing:.12em;text-transform:uppercase}
   #hud span{color:#8b99ad}
+  #bar{margin-top:8px;width:186px;height:3px;background:rgba(200,214,235,.14);border-radius:2px;overflow:hidden}
+  #barFill{height:100%;width:0;background:rgba(214,226,244,.65);transition:width .12s linear}
+  #pips{display:flex;gap:4px;margin-top:6px}
+  #pips i{width:20px;height:2px;background:rgba(200,214,235,.16);display:block}
+  #pips i.done{background:rgba(214,226,244,.45)}
+  #pips i.cur{background:rgba(214,226,244,.8)}
   #again{position:fixed;left:50%;transform:translateX(-50%);bottom:14%;font:12px/1 ui-monospace,monospace;
          color:#6d7a8d;text-decoration:underline;letter-spacing:.08em;cursor:pointer;display:none}
   #again:hover{color:#aab6c6}
@@ -19,7 +25,8 @@
 </head>
 <body>
 <canvas id="c"></canvas>
-<div id="hud"><b id="phaseLabel"></b><span id="subLabel"></span></div>
+<div id="hud"><b id="phaseLabel"></b><span id="subLabel"></span><div id="bar"><div id="barFill"></div></div><div id="pips"></div></div>
+
 <div id="again">run it again</div>
 <script>
 (() => {
