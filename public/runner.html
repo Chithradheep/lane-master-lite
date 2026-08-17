@@ -365,7 +365,109 @@
   }
 
   // ---- scene ----
-  function drawWorld(t){
+  // ---- atmosphere: ambient particles, vignette, film grain ----
+  const PARTICLE_STYLE = {
+    dust:    { n: 70, rgb:'214,198,160', size:[0.6,1.9], alpha:[0.05,0.20], vy:-4,  vx:9,  drift:0.35, blur:0 },
+    motes:   { n: 60, rgb:'176,200,224', size:[0.7,2.2], alpha:[0.05,0.18], vy:-6,  vx:6,  drift:0.5,  blur:0 },
+    fog:     { n: 26, rgb:'150,168,172', size:[26,74],   alpha:[0.012,0.035], vy:-2, vx:12, drift:0.15, blur:1 },
+    ash:     { n: 55, rgb:'196,188,206', size:[0.7,2.0], alpha:[0.05,0.16], vy:9,   vx:5,  drift:0.6,  blur:0 },
+    embers:  { n: 40, rgb:'232,196,150', size:[0.8,2.2], alpha:[0.06,0.22], vy:-11, vx:4,  drift:0.4,  blur:0 },
+  };
+  const rand = (a,b) => a + Math.random()*(b-a);
+  let particles = [], particleKind = null;
+
+  function seedParticles(kind){
+    particleKind = kind;
+    const s = PARTICLE_STYLE[kind] || PARTICLE_STYLE.dust;
+    particles = Array.from({length: s.n}, () => ({
+      x: Math.random()*W, y: Math.random()*H,
+      r: rand(s.size[0], s.size[1]),
+      a: rand(s.alpha[0], s.alpha[1]),
+      p: Math.random()*Math.PI*2,
+      sp: rand(0.6, 1.5)
+    }));
+  }
+
+  function drawParticles(kind, dt, t){
+    if (kind !== particleKind || particles.length === 0) seedParticles(kind);
+    const s = PARTICLE_STYLE[kind] || PARTICLE_STYLE.dust;
+    for (const q of particles){
+      q.y += s.vy * s.sp * dt * (H/700);
+      q.x += (s.vx * s.sp * 0.25 + Math.sin(t * s.drift + q.p) * 8) * dt;
+      if (q.y < -80) q.y = H + 40;
+      if (q.y > H + 80) q.y = -40;
+      if (q.x < -90) q.x = W + 60;
+      if (q.x > W + 90) q.x = -60;
+      ctx.fillStyle = `rgba(${s.rgb},${q.a.toFixed(3)})`;
+      if (s.blur){
+        const g = ctx.createRadialGradient(q.x, q.y, 0, q.x, q.y, q.r);
+        g.addColorStop(0, `rgba(${s.rgb},${(q.a*2.2).toFixed(3)})`);
+        g.addColorStop(1, `rgba(${s.rgb},0)`);
+        ctx.fillStyle = g;
+      }
+      ctx.beginPath(); ctx.arc(q.x, q.y, q.r, 0, 7); ctx.fill();
+    }
+  }
+
+  // grain tile, regenerated occasionally so it shimmers softly
+  const grain = document.createElement('canvas');
+  grain.width = grain.height = 128;
+  const gctx = grain.getContext('2d');
+  function refreshGrain(){
+    const img = gctx.createImageData(128,128);
+    for (let i=0;i<img.data.length;i+=4){
+      const v = 120 + Math.random()*135;
+      img.data[i] = img.data[i+1] = img.data[i+2] = v;
+      img.data[i+3] = 16 + Math.random()*22;
+    }
+    gctx.putImageData(img, 0, 0);
+  }
+  refreshGrain();
+  let grainT = 0, grainPattern = null;
+  function drawGrain(dt){
+    grainT += dt;
+    if (grainT > 0.09){ grainT = 0; refreshGrain(); grainPattern = null; }
+    if (!grainPattern) grainPattern = ctx.createPattern(grain, 'repeat');
+    ctx.save();
+    ctx.globalAlpha = 0.055;
+    ctx.globalCompositeOperation = 'overlay';
+    ctx.fillStyle = grainPattern;
+    ctx.translate(-(Math.random()*40|0), -(Math.random()*40|0));
+    ctx.fillRect(0, 0, W + 60, H + 60);
+    ctx.restore();
+  }
+
+  let vignetteCache = null, vignetteKey = '';
+  function drawVignette(){
+    const key = `${W}x${H}`;
+    if (key !== vignetteKey){
+      vignetteKey = key;
+      const g = ctx.createRadialGradient(W/2, H*0.52, Math.min(W,H)*0.22, W/2, H*0.52, Math.max(W,H)*0.78);
+      g.addColorStop(0, 'rgba(0,0,0,0)');
+      g.addColorStop(0.6, 'rgba(0,0,0,.24)');
+      g.addColorStop(1, 'rgba(4,5,8,.78)');
+      vignetteCache = g;
+    }
+    ctx.fillStyle = vignetteCache; ctx.fillRect(0,0,W,H);
+  }
+
+  function colorGrade(T){
+    ctx.save();
+    ctx.globalCompositeOperation = 'soft-light';
+    ctx.fillStyle = `rgba(${T.tint},${(T.haze * 2.4).toFixed(3)})`;
+    ctx.fillRect(0,0,W,H);
+    ctx.restore();
+    // atmospheric haze toward the horizon
+    const hz = HORIZON();
+    const g = ctx.createLinearGradient(0, hz - H*0.12, 0, hz + H*0.30);
+    g.addColorStop(0, `rgba(${T.tint},0)`);
+    g.addColorStop(0.42, `rgba(${T.tint},${T.haze.toFixed(3)})`);
+    g.addColorStop(1, `rgba(${T.tint},0)`);
+    ctx.fillStyle = g; ctx.fillRect(0, hz - H*0.12, W, H*0.42);
+  }
+
+  function drawWorld(t, dt = 0){
+
     const T = PHASES[phase];
     ctx.fillStyle = T.sky; ctx.fillRect(0,0,W,H);
     const hz = HORIZON();
