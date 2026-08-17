@@ -227,9 +227,9 @@
     const x = LANES[o.lane];
     switch (o.kind){
       case 'exam': {
-        box(x, o.y, o.z, o.w, o.h, o.d, '#e9e4d4', '#cfc7b0');
+        box(x, o.y, o.z, o.w, o.h, o.d, '#c8c2b0', '#a49c88');
         faceRect(o, (px,py,pw,ph) => {
-          ctx.strokeStyle = '#b4321f'; ctx.lineWidth = Math.max(2, pw*0.06);
+          ctx.strokeStyle = '#96412f'; ctx.lineWidth = Math.max(2, pw*0.06);
           ctx.beginPath();
           ctx.moveTo(px+pw*0.25, py+ph*0.25); ctx.lineTo(px+pw*0.75, py+ph*0.75);
           ctx.moveTo(px+pw*0.75, py+ph*0.25); ctx.lineTo(px+pw*0.25, py+ph*0.75);
@@ -240,7 +240,7 @@
         break;
       }
       case 'face': {
-        box(x, o.y, o.z, o.w, o.h, o.d, '#8d7a63', '#6f5f4c');
+        box(x, o.y, o.z, o.w, o.h, o.d, '#7a6a58', '#5d5044');
         faceRect(o, (px,py,pw,ph) => {
           ctx.fillStyle = '#231d16';
           const r = Math.max(2, pw*0.07);
@@ -252,7 +252,7 @@
         break;
       }
       case 'mirror': {
-        box(x, o.y, o.z, o.w, o.h, o.d, '#9fc8d8', '#6f97ab');
+        box(x, o.y, o.z, o.w, o.h, o.d, '#8aa9b6', '#5f7f8e');
         faceRect(o, (px,py,pw,ph) => {
           const g = ctx.createLinearGradient(px, py, px+pw, py+ph);
           g.addColorStop(0,'rgba(255,255,255,.55)');
@@ -273,7 +273,7 @@
         for (let i=0;i<n;i++){
           const hh = o.h/n;
           box(x + Math.sin(i*2.1)*0.12, o.y + i*hh, o.z, o.w*0.92, hh*0.92, o.d,
-              i%2 ? '#efe7cf' : '#dcd2b6', '#b7ac90');
+              i%2 ? '#cec7b0' : '#bcb39a', '#948a72');
         }
         faceRect(o, (px,py,pw,ph) => {
           ctx.fillStyle = 'rgba(150,40,30,.75)';
@@ -282,11 +282,11 @@
         break;
       }
       case 'turnstile': {
-        box(x, o.y, o.z, o.w, o.h*0.35, o.d, '#7f8a93', '#5b656e');
+        box(x, o.y, o.z, o.w, o.h*0.35, o.d, '#6d767e', '#4d565e');
         box(x-o.w/2, 0, o.z, 0.22, o.y + o.h, o.d, '#4c555d', '#3b434a');
         box(x+o.w/2, 0, o.z, 0.22, o.y + o.h, o.d, '#4c555d', '#3b434a');
         faceRect(o, (px,py,pw,ph) => {
-          ctx.strokeStyle = 'rgba(255,200,90,.8)'; ctx.lineWidth = Math.max(2, ph*0.09);
+          ctx.strokeStyle = 'rgba(198,163,96,.7)'; ctx.lineWidth = Math.max(2, ph*0.09);
           ctx.beginPath(); ctx.moveTo(px, py+ph*0.6); ctx.lineTo(px+pw, py+ph*0.6); ctx.stroke();
         });
         break;
@@ -295,24 +295,24 @@
         box(x, o.y, o.z, o.w*0.8, o.h*0.7, o.d, '#2c2f38', '#1d2028');
         faceRect(o, (px,py,pw,ph) => {
           const on = Math.sin(t*10 + o.spin) > 0;
-          ctx.fillStyle = on ? 'rgba(120,220,140,.95)' : 'rgba(70,90,80,.6)';
+          ctx.fillStyle = on ? 'rgba(126,178,136,.85)' : 'rgba(70,90,80,.6)';
           ctx.fillRect(px+pw*0.28, py+ph*0.3, pw*0.44, ph*0.4);
           if (on){
-            ctx.strokeStyle = 'rgba(120,220,140,.6)'; ctx.lineWidth = 2;
+            ctx.strokeStyle = 'rgba(126,178,136,.45)'; ctx.lineWidth = 2;
             for (let r=1;r<=2;r++){ ctx.beginPath(); ctx.arc(px+pw*0.5, py+ph*0.5, pw*(0.35*r), 0, 7); ctx.stroke(); }
           }
         });
         break;
       }
       case 'stamp': {
-        box(x, o.y, o.z, o.w, o.h*0.8, o.d, '#3a3350', '#282341');
+        box(x, o.y, o.z, o.w, o.h*0.8, o.d, '#332e46', '#241f38');
         faceRect(o, (px,py,pw,ph) => {
           ctx.save();
           ctx.translate(px+pw/2, py+ph/2);
           ctx.rotate(-0.22 + Math.sin(t + o.spin)*0.05);
-          ctx.strokeStyle = '#e2555f'; ctx.lineWidth = Math.max(2, pw*0.04);
+          ctx.strokeStyle = '#b8555c'; ctx.lineWidth = Math.max(2, pw*0.04);
           ctx.strokeRect(-pw*0.42, -ph*0.24, pw*0.84, ph*0.48);
-          ctx.fillStyle = '#e2555f';
+          ctx.fillStyle = '#b8555c';
           ctx.font = `700 ${Math.max(8, pw*0.17)}px ui-sans-serif,system-ui`;
           ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
           ctx.fillText('OBSOLETE', 0, 0);
@@ -322,9 +322,9 @@
         break;
       }
       case 'medical': {
-        box(x, o.y, o.z, o.w, o.h*0.75, o.d, '#cfd8d6', '#9fb0ad');
+        box(x, o.y, o.z, o.w, o.h*0.75, o.d, '#b3bcba', '#8a9997');
         faceRect(o, (px,py,pw,ph) => {
-          ctx.fillStyle = '#c0453f';
+          ctx.fillStyle = '#9c4744';
           ctx.fillRect(px+pw*0.42, py+ph*0.18, pw*0.16, ph*0.5);
           ctx.fillRect(px+pw*0.25, py+ph*0.35, pw*0.5, ph*0.16);
         });
@@ -333,7 +333,7 @@
       case 'alarm': {
         box(x, o.y, o.z, o.w, o.h*0.55, o.d, '#20343a', '#16262b');
         faceRect(o, (px,py,pw,ph) => {
-          ctx.strokeStyle = 'rgba(110,230,210,.9)'; ctx.lineWidth = Math.max(2, ph*0.05);
+          ctx.strokeStyle = 'rgba(122,182,172,.75)'; ctx.lineWidth = Math.max(2, ph*0.05);
           ctx.beginPath();
           const base = py + ph*0.45;
           ctx.moveTo(px, base);
@@ -355,12 +355,12 @@
     if (!p) return;
     const r = Math.max(2, 0.32 * p.s);
     const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r*3.2);
-    glow.addColorStop(0, 'rgba(255,248,214,.95)');
-    glow.addColorStop(0.3, 'rgba(255,232,160,.35)');
+    glow.addColorStop(0, 'rgba(255,246,216,.85)');
+    glow.addColorStop(0.3, 'rgba(240,215,155,.28)');
     glow.addColorStop(1, 'rgba(255,220,140,0)');
     ctx.fillStyle = glow;
     ctx.beginPath(); ctx.arc(p.x, p.y, r*3.2, 0, 7); ctx.fill();
-    ctx.fillStyle = 'rgba(255,253,240,.95)';
+    ctx.fillStyle = 'rgba(250,246,230,.88)';
     ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 7); ctx.fill();
   }
 
@@ -536,7 +536,7 @@
     { t: 5.6, s: 'His breathing is slowing.' },
   ];
 
-  function drawIntro(t){
+  function drawIntro(t, dt = 0){
     ctx.fillStyle = '#05060a'; ctx.fillRect(0,0,W,H);
     const pulse = 0.5 + 0.5 * Math.sin(t * 0.9);
     const r = Math.min(W,H) * (0.28 + pulse * 0.07);
@@ -560,10 +560,13 @@
       ctx.fillText('click when you\u2019re ready', W/2, H/2 + 108);
     }
     ctx.textAlign = 'left';
+    drawParticles('embers', dt, t);
+    drawVignette();
+    drawGrain(dt);
   }
 
-  function drawEnd(){
-    drawWorld(0);
+  function drawEnd(dt){
+    drawWorld(0, dt);
     const fade = Math.min(1, endT / 1.6);
     ctx.fillStyle = `rgba(4,5,8,${fade})`; ctx.fillRect(0,0,W,H);
     ctx.textAlign = 'center';
@@ -582,6 +585,8 @@
       ctx.fillText('Did he live?', W/2, H/2 + 78);
     }
     ctx.textAlign = 'left';
+    drawVignette();
+    drawGrain(dt);
     if (endT > 8 && againEl.style.display !== 'block') againEl.style.display = 'block';
   }
 
@@ -593,7 +598,7 @@
 
     if (mode === 'intro'){
       introT += dt;
-      drawIntro(t);
+      drawIntro(t, dt);
     } else if (mode === 'play'){
       const lastPhase = phase === TOTAL - 1;
 
@@ -629,10 +634,10 @@
 
       if (mode === 'play' && !lastPhase && dist - phaseStart >= phaseLen) advance(false);
 
-      drawWorld(t);
+      drawWorld(t, dt);
     } else {
       endT += dt;
-      drawEnd();
+      drawEnd(dt);
     }
 
     requestAnimationFrame(loop);
