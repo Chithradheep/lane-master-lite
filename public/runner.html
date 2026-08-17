@@ -154,7 +154,14 @@
     phaseLabel.textContent = T.name;
     subLabel.textContent = T.sub;
     if (i === TOTAL - 1) subLabel.textContent = '';
-  }
+    if (!pipsEl.children.length){
+      for (let k = 0; k < TOTAL; k++) pipsEl.appendChild(document.createElement('i'));
+    }
+    [...pipsEl.children].forEach((el, k) => {
+      el.className = k < i ? 'done' : (k === i ? 'cur' : '');
+    });
+    barFill.style.width = '0%';
+
 
   function advance(byHit){
     flash = 1; flashRGB = byHit ? FLASH_HIT : FLASH_PASS;
