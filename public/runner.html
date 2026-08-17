@@ -52,27 +52,35 @@
   // ---- phases ----
   const PHASES = [
     { name:'Childhood', sub:'Surviving Approval',
-      sky:'#1a1408', ground:'#241c0d', road:'#332711', stripe:'#3c2e15',
+      sky:'#161307', ground:'#1e1a0f', road:'#2a2415', stripe:'#312a19',
+      tint:'138,116,74', haze:0.10, particles:'dust',
       kinds:['exam','face'] },
     { name:'Adolescence', sub:'Surviving Belonging',
-      sky:'#0d1622', ground:'#122031', road:'#1a2c42', stripe:'#20344e',
+      sky:'#0d1319', ground:'#111a22', road:'#18242e', stripe:'#1d2a36',
+      tint:'96,120,142', haze:0.12, particles:'motes',
       kinds:['mirror'] },
     { name:'Early Adulthood', sub:'Surviving the System',
-      sky:'#101812', ground:'#16241b', road:'#1e3325', stripe:'#243d2c',
+      sky:'#0f1412', ground:'#141b18', road:'#1b2521', stripe:'#202b27',
+      tint:'96,116,106', haze:0.11, particles:'fog',
       kinds:['bills','turnstile'] },
     { name:'Building a Family', sub:'Surviving Responsibility',
-      sky:'#1b1410', ground:'#271c15', road:'#36271d', stripe:'#402f23',
+      sky:'#17120e', ground:'#201913', road:'#2c221a', stripe:'#342820',
+      tint:'134,106,80', haze:0.10, particles:'dust',
       kinds:['bills','phone'] },
     { name:'Midlife', sub:'Surviving Irrelevance',
-      sky:'#181523', ground:'#221d31', road:'#2e2743', stripe:'#372e4f',
+      sky:'#14121b', ground:'#1c1926', road:'#262134', stripe:'#2c273c',
+      tint:'110,100,132', haze:0.12, particles:'ash',
       kinds:['stamp'] },
     { name:'Decline', sub:'Surviving the Body',
-      sky:'#101a1c', ground:'#152427', road:'#1c3135', stripe:'#223a3f',
+      sky:'#0e1517', ground:'#131d20', road:'#19272a', stripe:'#1e2e32',
+      tint:'92,116,120', haze:0.13, particles:'fog',
       kinds:['medical','alarm'] },
     { name:'The Last Breath', sub:'',
-      sky:'#05060a', ground:'#080a10', road:'#0c1018', stripe:'#0f141e',
+      sky:'#05060a', ground:'#07090e', road:'#0a0e15', stripe:'#0d1119',
+      tint:'70,80,104', haze:0.14, particles:'embers',
       kinds:[] },
   ];
+
   const TOTAL = PHASES.length;
 
   // ---- state ----
@@ -219,9 +227,9 @@
     const x = LANES[o.lane];
     switch (o.kind){
       case 'exam': {
-        box(x, o.y, o.z, o.w, o.h, o.d, '#e9e4d4', '#cfc7b0');
+        box(x, o.y, o.z, o.w, o.h, o.d, '#c8c2b0', '#a49c88');
         faceRect(o, (px,py,pw,ph) => {
-          ctx.strokeStyle = '#b4321f'; ctx.lineWidth = Math.max(2, pw*0.06);
+          ctx.strokeStyle = '#96412f'; ctx.lineWidth = Math.max(2, pw*0.06);
           ctx.beginPath();
           ctx.moveTo(px+pw*0.25, py+ph*0.25); ctx.lineTo(px+pw*0.75, py+ph*0.75);
           ctx.moveTo(px+pw*0.75, py+ph*0.25); ctx.lineTo(px+pw*0.25, py+ph*0.75);
@@ -232,7 +240,7 @@
         break;
       }
       case 'face': {
-        box(x, o.y, o.z, o.w, o.h, o.d, '#8d7a63', '#6f5f4c');
+        box(x, o.y, o.z, o.w, o.h, o.d, '#7a6a58', '#5d5044');
         faceRect(o, (px,py,pw,ph) => {
           ctx.fillStyle = '#231d16';
           const r = Math.max(2, pw*0.07);
@@ -244,7 +252,7 @@
         break;
       }
       case 'mirror': {
-        box(x, o.y, o.z, o.w, o.h, o.d, '#9fc8d8', '#6f97ab');
+        box(x, o.y, o.z, o.w, o.h, o.d, '#8aa9b6', '#5f7f8e');
         faceRect(o, (px,py,pw,ph) => {
           const g = ctx.createLinearGradient(px, py, px+pw, py+ph);
           g.addColorStop(0,'rgba(255,255,255,.55)');
@@ -265,7 +273,7 @@
         for (let i=0;i<n;i++){
           const hh = o.h/n;
           box(x + Math.sin(i*2.1)*0.12, o.y + i*hh, o.z, o.w*0.92, hh*0.92, o.d,
-              i%2 ? '#efe7cf' : '#dcd2b6', '#b7ac90');
+              i%2 ? '#cec7b0' : '#bcb39a', '#948a72');
         }
         faceRect(o, (px,py,pw,ph) => {
           ctx.fillStyle = 'rgba(150,40,30,.75)';
@@ -274,11 +282,11 @@
         break;
       }
       case 'turnstile': {
-        box(x, o.y, o.z, o.w, o.h*0.35, o.d, '#7f8a93', '#5b656e');
+        box(x, o.y, o.z, o.w, o.h*0.35, o.d, '#6d767e', '#4d565e');
         box(x-o.w/2, 0, o.z, 0.22, o.y + o.h, o.d, '#4c555d', '#3b434a');
         box(x+o.w/2, 0, o.z, 0.22, o.y + o.h, o.d, '#4c555d', '#3b434a');
         faceRect(o, (px,py,pw,ph) => {
-          ctx.strokeStyle = 'rgba(255,200,90,.8)'; ctx.lineWidth = Math.max(2, ph*0.09);
+          ctx.strokeStyle = 'rgba(198,163,96,.7)'; ctx.lineWidth = Math.max(2, ph*0.09);
           ctx.beginPath(); ctx.moveTo(px, py+ph*0.6); ctx.lineTo(px+pw, py+ph*0.6); ctx.stroke();
         });
         break;
@@ -287,24 +295,24 @@
         box(x, o.y, o.z, o.w*0.8, o.h*0.7, o.d, '#2c2f38', '#1d2028');
         faceRect(o, (px,py,pw,ph) => {
           const on = Math.sin(t*10 + o.spin) > 0;
-          ctx.fillStyle = on ? 'rgba(120,220,140,.95)' : 'rgba(70,90,80,.6)';
+          ctx.fillStyle = on ? 'rgba(126,178,136,.85)' : 'rgba(70,90,80,.6)';
           ctx.fillRect(px+pw*0.28, py+ph*0.3, pw*0.44, ph*0.4);
           if (on){
-            ctx.strokeStyle = 'rgba(120,220,140,.6)'; ctx.lineWidth = 2;
+            ctx.strokeStyle = 'rgba(126,178,136,.45)'; ctx.lineWidth = 2;
             for (let r=1;r<=2;r++){ ctx.beginPath(); ctx.arc(px+pw*0.5, py+ph*0.5, pw*(0.35*r), 0, 7); ctx.stroke(); }
           }
         });
         break;
       }
       case 'stamp': {
-        box(x, o.y, o.z, o.w, o.h*0.8, o.d, '#3a3350', '#282341');
+        box(x, o.y, o.z, o.w, o.h*0.8, o.d, '#332e46', '#241f38');
         faceRect(o, (px,py,pw,ph) => {
           ctx.save();
           ctx.translate(px+pw/2, py+ph/2);
           ctx.rotate(-0.22 + Math.sin(t + o.spin)*0.05);
-          ctx.strokeStyle = '#e2555f'; ctx.lineWidth = Math.max(2, pw*0.04);
+          ctx.strokeStyle = '#b8555c'; ctx.lineWidth = Math.max(2, pw*0.04);
           ctx.strokeRect(-pw*0.42, -ph*0.24, pw*0.84, ph*0.48);
-          ctx.fillStyle = '#e2555f';
+          ctx.fillStyle = '#b8555c';
           ctx.font = `700 ${Math.max(8, pw*0.17)}px ui-sans-serif,system-ui`;
           ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
           ctx.fillText('OBSOLETE', 0, 0);
@@ -314,9 +322,9 @@
         break;
       }
       case 'medical': {
-        box(x, o.y, o.z, o.w, o.h*0.75, o.d, '#cfd8d6', '#9fb0ad');
+        box(x, o.y, o.z, o.w, o.h*0.75, o.d, '#b3bcba', '#8a9997');
         faceRect(o, (px,py,pw,ph) => {
-          ctx.fillStyle = '#c0453f';
+          ctx.fillStyle = '#9c4744';
           ctx.fillRect(px+pw*0.42, py+ph*0.18, pw*0.16, ph*0.5);
           ctx.fillRect(px+pw*0.25, py+ph*0.35, pw*0.5, ph*0.16);
         });
@@ -325,7 +333,7 @@
       case 'alarm': {
         box(x, o.y, o.z, o.w, o.h*0.55, o.d, '#20343a', '#16262b');
         faceRect(o, (px,py,pw,ph) => {
-          ctx.strokeStyle = 'rgba(110,230,210,.9)'; ctx.lineWidth = Math.max(2, ph*0.05);
+          ctx.strokeStyle = 'rgba(122,182,172,.75)'; ctx.lineWidth = Math.max(2, ph*0.05);
           ctx.beginPath();
           const base = py + ph*0.45;
           ctx.moveTo(px, base);
@@ -347,17 +355,119 @@
     if (!p) return;
     const r = Math.max(2, 0.32 * p.s);
     const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r*3.2);
-    glow.addColorStop(0, 'rgba(255,248,214,.95)');
-    glow.addColorStop(0.3, 'rgba(255,232,160,.35)');
+    glow.addColorStop(0, 'rgba(255,246,216,.85)');
+    glow.addColorStop(0.3, 'rgba(240,215,155,.28)');
     glow.addColorStop(1, 'rgba(255,220,140,0)');
     ctx.fillStyle = glow;
     ctx.beginPath(); ctx.arc(p.x, p.y, r*3.2, 0, 7); ctx.fill();
-    ctx.fillStyle = 'rgba(255,253,240,.95)';
+    ctx.fillStyle = 'rgba(250,246,230,.88)';
     ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 7); ctx.fill();
   }
 
   // ---- scene ----
-  function drawWorld(t){
+  // ---- atmosphere: ambient particles, vignette, film grain ----
+  const PARTICLE_STYLE = {
+    dust:    { n: 70, rgb:'214,198,160', size:[0.6,1.9], alpha:[0.05,0.20], vy:-4,  vx:9,  drift:0.35, blur:0 },
+    motes:   { n: 60, rgb:'176,200,224', size:[0.7,2.2], alpha:[0.05,0.18], vy:-6,  vx:6,  drift:0.5,  blur:0 },
+    fog:     { n: 26, rgb:'150,168,172', size:[26,74],   alpha:[0.012,0.035], vy:-2, vx:12, drift:0.15, blur:1 },
+    ash:     { n: 55, rgb:'196,188,206', size:[0.7,2.0], alpha:[0.05,0.16], vy:9,   vx:5,  drift:0.6,  blur:0 },
+    embers:  { n: 40, rgb:'232,196,150', size:[0.8,2.2], alpha:[0.06,0.22], vy:-11, vx:4,  drift:0.4,  blur:0 },
+  };
+  const rand = (a,b) => a + Math.random()*(b-a);
+  let particles = [], particleKind = null;
+
+  function seedParticles(kind){
+    particleKind = kind;
+    const s = PARTICLE_STYLE[kind] || PARTICLE_STYLE.dust;
+    particles = Array.from({length: s.n}, () => ({
+      x: Math.random()*W, y: Math.random()*H,
+      r: rand(s.size[0], s.size[1]),
+      a: rand(s.alpha[0], s.alpha[1]),
+      p: Math.random()*Math.PI*2,
+      sp: rand(0.6, 1.5)
+    }));
+  }
+
+  function drawParticles(kind, dt, t){
+    if (kind !== particleKind || particles.length === 0) seedParticles(kind);
+    const s = PARTICLE_STYLE[kind] || PARTICLE_STYLE.dust;
+    for (const q of particles){
+      q.y += s.vy * q.sp * dt * (H/700);
+      q.x += (s.vx * q.sp * 0.25 + Math.sin(t * s.drift + q.p) * 8) * dt;
+      if (q.y < -80) q.y = H + 40;
+      if (q.y > H + 80) q.y = -40;
+      if (q.x < -90) q.x = W + 60;
+      if (q.x > W + 90) q.x = -60;
+      ctx.fillStyle = `rgba(${s.rgb},${q.a.toFixed(3)})`;
+      if (s.blur){
+        const g = ctx.createRadialGradient(q.x, q.y, 0, q.x, q.y, q.r);
+        g.addColorStop(0, `rgba(${s.rgb},${(q.a*2.2).toFixed(3)})`);
+        g.addColorStop(1, `rgba(${s.rgb},0)`);
+        ctx.fillStyle = g;
+      }
+      ctx.beginPath(); ctx.arc(q.x, q.y, q.r, 0, 7); ctx.fill();
+    }
+  }
+
+  // grain tile, regenerated occasionally so it shimmers softly
+  const grain = document.createElement('canvas');
+  grain.width = grain.height = 128;
+  const gctx = grain.getContext('2d');
+  function refreshGrain(){
+    const img = gctx.createImageData(128,128);
+    for (let i=0;i<img.data.length;i+=4){
+      const v = 120 + Math.random()*135;
+      img.data[i] = img.data[i+1] = img.data[i+2] = v;
+      img.data[i+3] = 16 + Math.random()*22;
+    }
+    gctx.putImageData(img, 0, 0);
+  }
+  refreshGrain();
+  let grainT = 0, grainPattern = null;
+  function drawGrain(dt){
+    grainT += dt;
+    if (grainT > 0.09){ grainT = 0; refreshGrain(); grainPattern = null; }
+    if (!grainPattern) grainPattern = ctx.createPattern(grain, 'repeat');
+    ctx.save();
+    ctx.globalAlpha = 0.055;
+    ctx.globalCompositeOperation = 'overlay';
+    ctx.fillStyle = grainPattern;
+    ctx.translate(-(Math.random()*40|0), -(Math.random()*40|0));
+    ctx.fillRect(0, 0, W + 60, H + 60);
+    ctx.restore();
+  }
+
+  let vignetteCache = null, vignetteKey = '';
+  function drawVignette(){
+    const key = `${W}x${H}`;
+    if (key !== vignetteKey){
+      vignetteKey = key;
+      const g = ctx.createRadialGradient(W/2, H*0.52, Math.min(W,H)*0.22, W/2, H*0.52, Math.max(W,H)*0.78);
+      g.addColorStop(0, 'rgba(0,0,0,0)');
+      g.addColorStop(0.6, 'rgba(0,0,0,.24)');
+      g.addColorStop(1, 'rgba(4,5,8,.78)');
+      vignetteCache = g;
+    }
+    ctx.fillStyle = vignetteCache; ctx.fillRect(0,0,W,H);
+  }
+
+  function colorGrade(T){
+    ctx.save();
+    ctx.globalCompositeOperation = 'soft-light';
+    ctx.fillStyle = `rgba(${T.tint},${(T.haze * 2.4).toFixed(3)})`;
+    ctx.fillRect(0,0,W,H);
+    ctx.restore();
+    // atmospheric haze toward the horizon
+    const hz = HORIZON();
+    const g = ctx.createLinearGradient(0, hz - H*0.12, 0, hz + H*0.30);
+    g.addColorStop(0, `rgba(${T.tint},0)`);
+    g.addColorStop(0.42, `rgba(${T.tint},${T.haze.toFixed(3)})`);
+    g.addColorStop(1, `rgba(${T.tint},0)`);
+    ctx.fillStyle = g; ctx.fillRect(0, hz - H*0.12, W, H*0.42);
+  }
+
+  function drawWorld(t, dt = 0){
+
     const T = PHASES[phase];
     ctx.fillStyle = T.sky; ctx.fillRect(0,0,W,H);
     const hz = HORIZON();
@@ -404,14 +514,21 @@
       const pw = P.sliding ? P.w*1.25 : P.w;
       const hurt = P.hurt > 0;
       box(P.x, P.y, 0, pw, ph, P.sliding ? 1.4 : 0.9,
-          hurt ? '#e8b3b3' : '#dfe7f2', hurt ? '#b4595b' : '#9aa8bd');
+          hurt ? '#c9a4a4' : '#c3cbd8', hurt ? '#8f4a4c' : '#7d8998');
     }
 
+    colorGrade(T);
+    drawParticles(T.particles, dt, t);
+
     if (flash > 0){
-      ctx.fillStyle = `rgba(${flashRGB},${(flash*0.65).toFixed(3)})`;
+      ctx.fillStyle = `rgba(${flashRGB},${(flash*0.5).toFixed(3)})`;
       ctx.fillRect(0,0,W,H);
     }
+
+    drawVignette();
+    drawGrain(dt);
   }
+
 
   const INTRO_LINES = [
     { t: 1.2, s: 'He is lying in his bed.' },
@@ -419,7 +536,7 @@
     { t: 5.6, s: 'His breathing is slowing.' },
   ];
 
-  function drawIntro(t){
+  function drawIntro(t, dt = 0){
     ctx.fillStyle = '#05060a'; ctx.fillRect(0,0,W,H);
     const pulse = 0.5 + 0.5 * Math.sin(t * 0.9);
     const r = Math.min(W,H) * (0.28 + pulse * 0.07);
@@ -443,10 +560,13 @@
       ctx.fillText('click when you\u2019re ready', W/2, H/2 + 108);
     }
     ctx.textAlign = 'left';
+    drawParticles('embers', dt, t);
+    drawVignette();
+    drawGrain(dt);
   }
 
-  function drawEnd(){
-    drawWorld(0);
+  function drawEnd(dt){
+    drawWorld(0, dt);
     const fade = Math.min(1, endT / 1.6);
     ctx.fillStyle = `rgba(4,5,8,${fade})`; ctx.fillRect(0,0,W,H);
     ctx.textAlign = 'center';
@@ -465,6 +585,8 @@
       ctx.fillText('Did he live?', W/2, H/2 + 78);
     }
     ctx.textAlign = 'left';
+    drawVignette();
+    drawGrain(dt);
     if (endT > 8 && againEl.style.display !== 'block') againEl.style.display = 'block';
   }
 
@@ -476,7 +598,7 @@
 
     if (mode === 'intro'){
       introT += dt;
-      drawIntro(t);
+      drawIntro(t, dt);
     } else if (mode === 'play'){
       const lastPhase = phase === TOTAL - 1;
 
@@ -512,10 +634,10 @@
 
       if (mode === 'play' && !lastPhase && dist - phaseStart >= phaseLen) advance(false);
 
-      drawWorld(t);
+      drawWorld(t, dt);
     } else {
       endT += dt;
-      drawEnd();
+      drawEnd(dt);
     }
 
     requestAnimationFrame(loop);
